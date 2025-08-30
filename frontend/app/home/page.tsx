@@ -154,18 +154,11 @@ export default function Home() {
                 <div className="bg-white p-6 rounded-lg shadow-sm">
                   <div className="mb-4">
                     <h3 className="text-lg font-semibold text-gray-800 mb-2">Email</h3>
-                    <p className="text-blue-600">support@thegadgeto.com</p>
-                    <p className="text-blue-600">sales@thegadgeto.com</p>
+                    <p className="text-blue-600">tanjilm445@gmail.com</p>
                   </div>
                   <div className="mb-4">
                     <h3 className="text-lg font-semibold text-gray-800 mb-2">Phone</h3>
-                    <p className="text-gray-600">Customer Support: +1 (555) 123-4567</p>
-                    <p className="text-gray-600">Sales Inquiries: +1 (555) 987-6543</p>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-800 mb-2">Business Hours</h3>
-                    <p className="text-gray-600">Monday - Friday: 9:00 AM - 6:00 PM</p>
-                    <p className="text-gray-600">Saturday: 10:00 AM - 4:00 PM</p>
+                    <p className="text-gray-600">Customer Support: +8801797241407</p>
                   </div>
                 </div>
               </div>
