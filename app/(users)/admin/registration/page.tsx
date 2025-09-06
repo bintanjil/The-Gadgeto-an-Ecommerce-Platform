@@ -3,11 +3,12 @@
 import { useState } from 'react';
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
+import axios from 'axios';
 
 // Define Zod schema with coerce that parse the input field
 const adminSchema = z.object({
   id: z.coerce
-    .number("Id mus be a number")
+    .number("Id must be a number")
     .positive('ID must be a positive number'),
   name: z.string()
     .min(1, 'Name is required')
@@ -48,14 +49,44 @@ export default function AdminRegistration() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
 
+  const createAdmin = async (adminData: any, file: File | null) => {
+    const formData = new FormData();
+    
+    // Append all admin data to FormData
+    formData.append('id', adminData.id.toString());
+    formData.append('name', adminData.name);
+    formData.append('email', adminData.email);
+    formData.append('password', adminData.password);
+    formData.append('phone', adminData.phone);
+    formData.append('nid', adminData.nid);
+    formData.append('age', adminData.age.toString());
+    
+    // Append file if exists (matching your backend field name 'myfile')
+    if (file) {
+      formData.append('myfile', file);
+    }
+
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_ENDPOINT}/admin/createAdmin`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+
+    return response.data;
+  };
+
   const handleSubmit = async (e: React.MouseEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setErrors({});
     setSuccessMessage('');
 
-    // Prepare form data
-    const formData = {
+    // Prepare form data for validation
+    const formDataForValidation = {
       id,
       name,
       email,
@@ -67,24 +98,26 @@ export default function AdminRegistration() {
       file
     };
 
-    // Validate form using safeParse instead tru catch block
-    const validation = adminSchema.safeParse(formData);
+    // Validate form using safeParse
+    const validation = adminSchema.safeParse(formDataForValidation);
 
     if (validation.success) {
-      const validatedData = {
-        id: parseInt(id),
-        name: name.trim(),
-        email: email.trim(),
-        password,
-        phone: phone.trim(),
-        nid: nid.trim(),
-        age: parseInt(age),
-        fileName: file ? file.name : undefined
-      };
+      try {
+        const validatedData = {
+          id: parseInt(id),
+          name: name.trim(),
+          email: email.trim(),
+          password,
+          phone: phone.trim(),
+          nid: nid.trim(),
+          age: parseInt(age),
+        };
 
-      
-      setTimeout(() => {
-        setSuccessMessage('Admin registration successful');
+        // Call the API
+        const result = await createAdmin(validatedData, file);
+        console.log('Admin created successfully:', result);
+
+        setSuccessMessage('Admin registration successful!');
         
         // Reset form
         setId('');
@@ -96,13 +129,46 @@ export default function AdminRegistration() {
         setAge('');
         setFile(null);
         
+        // Reset file input
+        const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+        if (fileInput) {
+          fileInput.value = '';
+        }
         
-        setTimeout(() => router.push('/home'), 20);
-        setIsSubmitting(false);
-      }, 1000);
-      
+        // Redirect after success
+        setTimeout(() => {
+          router.push('/admin/dashboard');
+        }, 2000);
+        
+      } catch (error: any) {
+        console.error('Error creating admin:', error);
+        
+        // Handle different types of errors
+        if (error.response?.data?.message) {
+          // Backend validation errors
+          if (Array.isArray(error.response.data.message)) {
+            const backendErrors: Record<string, string> = {};
+            error.response.data.message.forEach((msg: string) => {
+              // Parse backend error messages and map to fields
+              if (msg.includes('email')) backendErrors.email = msg;
+              else if (msg.includes('phone')) backendErrors.phone = msg;
+              else if (msg.includes('id')) backendErrors.id = msg;
+              else backendErrors.general = msg;
+            });
+            setErrors(backendErrors);
+          } else {
+            setErrors({ general: error.response.data.message });
+          }
+        } else if (error.response?.status === 409) {
+          setErrors({ general: 'Admin with this email or ID already exists' });
+        } else if (error.response?.status === 400) {
+          setErrors({ general: 'Invalid data provided. Please check your inputs.' });
+        } else {
+          setErrors({ general: 'Failed to create admin. Please try again.' });
+        }
+      }
     } else {
-      // Format Zod errors into our error state format
+      // Format Zod validation errors
       const formattedErrors: Record<string, string> = {};
       validation.error.issues.forEach((issue) => {
         const path = issue.path[0] as string;
@@ -110,8 +176,9 @@ export default function AdminRegistration() {
       });
       
       setErrors(formattedErrors);
-      setIsSubmitting(false);
     }
+    
+    setIsSubmitting(false);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -135,288 +202,567 @@ export default function AdminRegistration() {
   };
 
   return (
-    <div style={{ maxWidth: '500px', margin: '20px auto', padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-      <h1 style={{ textAlign: 'center', color: '#333', marginBottom: '30px' }}>
-        Admin Registration
-      </h1>
-
-      {successMessage && (
-        <div style={{
-          padding: '15px',
-          backgroundColor: '#d4edda',
-          color: '#155724',
-          border: '1px solid #c3e6cb',
-          borderRadius: '4px',
-          marginBottom: '20px',
-          textAlign: 'center'
-        }}>
-          {successMessage}
-        </div>
-      )}
-      
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-        
-        <div>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#333' }}>
-            Admin ID: <span style={{ color: 'red' }}>*</span>
-          </label>
-          <input
-            type="text"
-            placeholder="Enter Admin ID (positive number)"
-            value={id}
-            onChange={(e) => {
-              setId(e.target.value);
-              clearFieldError('id');
-            }}
-            style={{
-              width: '100%',
-              padding: '10px',
-              border: errors.id ? '2px solid #dc3545' : '1px solid #ccc',
-              borderRadius: '4px',
-              fontSize: '14px',
-              outline: 'none',
-              transition: 'border-color 0.2s'
-            }}
-            onFocus={(e) => e.target.style.borderColor = errors.id ? '#dc3545' : '#007bff'}
-            onBlur={(e) => e.target.style.borderColor = errors.id ? '#dc3545' : '#ccc'}
-          />
-          {errors.id && (
-            <div style={{ color: '#dc3545', fontSize: '12px', marginTop: '3px' }}>
-               {errors.id}
-            </div>
-          )}
-        </div>
-
-        <div>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#333' }}>
-            Full Name: <span style={{ color: 'red' }}>*</span>
-          </label>
-          <input
-            type="text"
-            placeholder="Must start with capital letter (min 5 chars)"
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value);
-              clearFieldError('name');
-            }}
-            style={{
-              width: '100%',
-              padding: '10px',
-              border: errors.name ? '2px solid #dc3545' : '1px solid #ccc',
-              borderRadius: '4px',
-              fontSize: '14px',
-              outline: 'none'
-            }}
-          />
-          {errors.name && (
-            <div style={{ color: '#dc3545', fontSize: '12px', marginTop: '3px' }}>
-              {errors.name}
-            </div>
-          )}
-        </div>
-
-        <div>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#333' }}>
-            Email: <span style={{ color: 'red' }}>*</span>
-          </label>
-          <input
-            type="email"
-            placeholder="Enter valid email address"
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              clearFieldError('email');
-            }}
-            style={{
-              width: '100%',
-              padding: '10px',
-              border: errors.email ? '2px solid #dc3545' : '1px solid #ccc',
-              borderRadius: '4px',
-              fontSize: '14px',
-              outline: 'none'
-            }}
-          />
-          {errors.email && (
-            <div style={{ color: '#dc3545', fontSize: '12px', marginTop: '3px' }}>
-              {errors.email}
-            </div>
-          )}
-        </div>
-
-        <div>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#333' }}>
-            Password: <span style={{ color: 'red' }}>*</span>
-          </label>
-          <input
-            type="password"
-            placeholder="Minimum 8 characters"
-            value={password}
-            onChange={(e) => {
-              setPassword(e.target.value);
-              clearFieldError('password');
-            }}
-            style={{
-              width: '100%',
-              padding: '10px',
-              border: errors.password ? '2px solid #dc3545' : '1px solid #ccc',
-              borderRadius: '4px',
-              fontSize: '14px',
-              outline: 'none'
-            }}
-          />
-          {errors.password && (
-            <div style={{ color: '#dc3545', fontSize: '12px', marginTop: '3px' }}>
-              {errors.password}
-            </div>
-          )}
-        </div>
-
-        <div>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#333' }}>
-            Phone Number: <span style={{ color: 'red' }}>*</span>
-          </label>
-          <input
-            type="tel"
-            placeholder="01XXXXXXXXX (11 digits starting with 01)"
-            value={phone}
-            onChange={(e) => {
-              setPhone(e.target.value);
-              clearFieldError('phone');
-            }}
-            style={{
-              width: '100%',
-              padding: '10px',
-              border: errors.phone ? '2px solid #dc3545' : '1px solid #ccc',
-              borderRadius: '4px',
-              fontSize: '14px',
-              outline: 'none'
-            }}
-          />
-          {errors.phone && (
-            <div style={{ color: '#dc3545', fontSize: '12px', marginTop: '3px' }}>
-              {errors.phone}
-            </div>
-          )}
-        </div>
-
-        <div>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#333' }}>
-            NID Number: <span style={{ color: 'red' }}>*</span>
-          </label>
-          <input
-            type="text"
-            placeholder="10-17 digits Bangladeshi NID"
-            value={nid}
-            onChange={(e) => {
-              setNid(e.target.value);
-              clearFieldError('nid');
-            }}
-            style={{
-              width: '100%',
-              padding: '10px',
-              border: errors.nid ? '2px solid #dc3545' : '1px solid #ccc',
-              borderRadius: '4px',
-              fontSize: '14px',
-              outline: 'none'
-            }}
-          />
-          {errors.nid && (
-            <div style={{ color: '#dc3545', fontSize: '12px', marginTop: '3px' }}>
-              {errors.nid}
-            </div>
-          )}
-        </div>
-
-        <div>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#333' }}>
-            Age: <span style={{ color: 'red' }}>*</span>
-          </label>
-          <input
-            type="number"
-            placeholder="Must be 18 or older"
-            value={age}
-            onChange={(e) => {
-              setAge(e.target.value);
-              clearFieldError('age');
-            }}
-            min="18"
-            style={{
-              width: '100%',
-              padding: '10px',
-              border: errors.age ? '2px solid #dc3545' : '1px solid #ccc',
-              borderRadius: '4px',
-              fontSize: '14px',
-              outline: 'none'
-            }}
-          />
-          {errors.age && (
-            <div style={{ color: '#dc3545', fontSize: '12px', marginTop: '3px' }}>
-              {errors.age}
-            </div>
-          )}
-        </div>
-
-        <div>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#333' }}>
-            Profile Picture (Optional):
-          </label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            style={{
-              width: '100%',
-              padding: '8px',
-              border: errors.file ? '2px solid #dc3545' : '1px solid #ccc',
-              borderRadius: '4px',
-              fontSize: '14px',
-              outline: 'none'
-            }}
-          />
-          <small style={{ color: '#666', fontSize: '12px' }}>
-            📁 Max file size: 2MB | Supported: JPG, PNG, GIF
-          </small>
-          {errors.file && (
-            <div style={{ color: '#dc3545', fontSize: '12px', marginTop: '3px' }}>
-               {errors.file}
-            </div>
-          )}
-          {file && !errors.file && (
-            <div style={{ color: '#28a745', fontSize: '12px', marginTop: '3px' }}>
-              ✅ Selected: {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
-            </div>
-          )}
-        </div>
-
-        <button
-          onClick={handleSubmit}
-          disabled={isSubmitting}
-          style={{
-            padding: '14px 20px',
-            backgroundColor: isSubmitting ? '#6c757d' : '#007bff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #f1f5f9 100%)',
+      padding: '40px 20px',
+      fontFamily: "'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+    }}>
+      <div style={{
+        maxWidth: '580px',
+        margin: '0 auto',
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        borderRadius: '20px',
+        padding: '40px',
+        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.08), 0 6px 20px rgba(0, 0, 0, 0.05)',
+        backdropFilter: 'blur(10px)',
+        border: '1px solid rgba(255, 255, 255, 0.2)'
+      }}>
+        {/* Header Section */}
+        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+          <div style={{
+            width: '80px',
+            height: '80px',
+            backgroundColor: '#e0f2fe',
+            borderRadius: '50%',
+            margin: '0 auto 20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '32px'
+          }}>
+            👤
+          </div>
+          <h1 style={{
+            fontSize: '28px',
+            fontWeight: '700',
+            color: '#1e293b',
+            margin: '0 0 8px 0',
+            letterSpacing: '-0.5px'
+          }}>
+            Admin Registration
+          </h1>
+          <p style={{
             fontSize: '16px',
-            fontWeight: 'bold',
-            cursor: isSubmitting ? 'not-allowed' : 'pointer',
-            marginTop: '15px',
-            transition: 'background-color 0.2s',
-            opacity: isSubmitting ? 0.7 : 1
-          }}
-          onMouseOver={(e) => {
-            if (!isSubmitting) {
-              e.currentTarget.style.backgroundColor = '#0056b3';
-            }
-          }}
-          onMouseOut={(e) => {
-            if (!isSubmitting) {
-              e.currentTarget.style.backgroundColor = '#007bff';
-            }
-          }}
-        >
-          {isSubmitting ? '⏳ Creating Account...' : '🚀 Create Account'}
-        </button>
+            color: '#64748b',
+            margin: '0'
+          }}>
+            Create a new administrator account
+          </p>
+        </div>
+
+        {/* General error message */}
+        {errors.general && (
+          <div style={{
+            padding: '16px 20px',
+            backgroundColor: '#fef2f2',
+            color: '#dc2626',
+            border: '1px solid #fecaca',
+            borderRadius: '12px',
+            marginBottom: '24px',
+            fontSize: '14px',
+            fontWeight: '500'
+          }}>
+            ⚠️ {errors.general}
+          </div>
+        )}
+
+        {successMessage && (
+          <div style={{
+            padding: '16px 20px',
+            backgroundColor: '#f0fdf4',
+            color: '#16a34a',
+            border: '1px solid #bbf7d0',
+            borderRadius: '12px',
+            marginBottom: '24px',
+            fontSize: '14px',
+            fontWeight: '500'
+          }}>
+            ✅ {successMessage}
+          </div>
+        )}
+        
+        {/* Form Fields */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          
+          {/* Admin ID */}
+          <div>
+            <label style={{
+              display: 'block',
+              marginBottom: '8px',
+              fontSize: '14px',
+              fontWeight: '600',
+              color: '#374151'
+            }}>
+              Admin ID <span style={{ color: '#ef4444' }}>*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Enter Admin ID (positive number)"
+              value={id}
+              onChange={(e) => {
+                setId(e.target.value);
+                clearFieldError('id');
+              }}
+              style={{
+                width: '100%',
+                padding: '14px 16px',
+                fontSize: '16px',
+                color: '#000000',
+                backgroundColor: '#ffffff',
+                border: errors.id ? '2px solid #f87171' : '2px solid #e5e7eb',
+                borderRadius: '12px',
+                outline: 'none',
+                transition: 'all 0.2s ease-in-out',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+              }}
+              onFocus={(e) => {
+                if (!errors.id) {
+                  e.target.style.borderColor = '#3b82f6';
+                  e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+                }
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = errors.id ? '#f87171' : '#e5e7eb';
+                e.target.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
+              }}
+            />
+            {errors.id && (
+              <div style={{
+                color: '#ef4444',
+                fontSize: '13px',
+                marginTop: '6px',
+                fontWeight: '500'
+              }}>
+                {errors.id}
+              </div>
+            )}
+          </div>
+
+          {/* Full Name */}
+          <div>
+            <label style={{
+              display: 'block',
+              marginBottom: '8px',
+              fontSize: '14px',
+              fontWeight: '600',
+              color: '#374151'
+            }}>
+              Full Name <span style={{ color: '#ef4444' }}>*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Must start with capital letter (min 5 chars)"
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+                clearFieldError('name');
+              }}
+              style={{
+                width: '100%',
+                padding: '14px 16px',
+                fontSize: '16px',
+                color: '#000000',
+                backgroundColor: '#ffffff',
+                border: errors.name ? '2px solid #f87171' : '2px solid #e5e7eb',
+                borderRadius: '12px',
+                outline: 'none',
+                transition: 'all 0.2s ease-in-out',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+              }}
+              onFocus={(e) => {
+                if (!errors.name) {
+                  e.target.style.borderColor = '#3b82f6';
+                  e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+                }
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = errors.name ? '#f87171' : '#e5e7eb';
+                e.target.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
+              }}
+            />
+            {errors.name && (
+              <div style={{
+                color: '#ef4444',
+                fontSize: '13px',
+                marginTop: '6px',
+                fontWeight: '500'
+              }}>
+                {errors.name}
+              </div>
+            )}
+          </div>
+
+          {/* Email */}
+          <div>
+            <label style={{
+              display: 'block',
+              marginBottom: '8px',
+              fontSize: '14px',
+              fontWeight: '600',
+              color: '#374151'
+            }}>
+              Email Address <span style={{ color: '#ef4444' }}>*</span>
+            </label>
+            <input
+              type="email"
+              placeholder="Enter valid email address"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                clearFieldError('email');
+              }}
+              style={{
+                width: '100%',
+                padding: '14px 16px',
+                fontSize: '16px',
+                color: '#000000',
+                backgroundColor: '#ffffff',
+                border: errors.email ? '2px solid #f87171' : '2px solid #e5e7eb',
+                borderRadius: '12px',
+                outline: 'none',
+                transition: 'all 0.2s ease-in-out',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+              }}
+              onFocus={(e) => {
+                if (!errors.email) {
+                  e.target.style.borderColor = '#3b82f6';
+                  e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+                }
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = errors.email ? '#f87171' : '#e5e7eb';
+                e.target.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
+              }}
+            />
+            {errors.email && (
+              <div style={{
+                color: '#ef4444',
+                fontSize: '13px',
+                marginTop: '6px',
+                fontWeight: '500'
+              }}>
+                {errors.email}
+              </div>
+            )}
+          </div>
+
+          {/* Password */}
+          <div>
+            <label style={{
+              display: 'block',
+              marginBottom: '8px',
+              fontSize: '14px',
+              fontWeight: '600',
+              color: '#374151'
+            }}>
+              Password <span style={{ color: '#ef4444' }}>*</span>
+            </label>
+            <input
+              type="password"
+              placeholder="Minimum 8 characters"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                clearFieldError('password');
+              }}
+              style={{
+                width: '100%',
+                padding: '14px 16px',
+                fontSize: '16px',
+                color: '#000000',
+                backgroundColor: '#ffffff',
+                border: errors.password ? '2px solid #f87171' : '2px solid #e5e7eb',
+                borderRadius: '12px',
+                outline: 'none',
+                transition: 'all 0.2s ease-in-out',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+              }}
+              onFocus={(e) => {
+                if (!errors.password) {
+                  e.target.style.borderColor = '#3b82f6';
+                  e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+                }
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = errors.password ? '#f87171' : '#e5e7eb';
+                e.target.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
+              }}
+            />
+            {errors.password && (
+              <div style={{
+                color: '#ef4444',
+                fontSize: '13px',
+                marginTop: '6px',
+                fontWeight: '500'
+              }}>
+                {errors.password}
+              </div>
+            )}
+          </div>
+
+          {/* Phone Number */}
+          <div>
+            <label style={{
+              display: 'block',
+              marginBottom: '8px',
+              fontSize: '14px',
+              fontWeight: '600',
+              color: '#374151'
+            }}>
+              Phone Number <span style={{ color: '#ef4444' }}>*</span>
+            </label>
+            <input
+              type="tel"
+              placeholder="A valid Bangladeshi number (01XXXXXXXXX)"
+              value={phone}
+              onChange={(e) => {
+                setPhone(e.target.value);
+                clearFieldError('phone');
+              }}
+              style={{
+                width: '100%',
+                padding: '14px 16px',
+                fontSize: '16px',
+                color: '#000000',
+                backgroundColor: '#ffffff',
+                border: errors.phone ? '2px solid #f87171' : '2px solid #e5e7eb',
+                borderRadius: '12px',
+                outline: 'none',
+                transition: 'all 0.2s ease-in-out',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+              }}
+              onFocus={(e) => {
+                if (!errors.phone) {
+                  e.target.style.borderColor = '#3b82f6';
+                  e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+                }
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = errors.phone ? '#f87171' : '#e5e7eb';
+                e.target.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
+              }}
+            />
+            {errors.phone && (
+              <div style={{
+                color: '#ef4444',
+                fontSize: '13px',
+                marginTop: '6px',
+                fontWeight: '500'
+              }}>
+                {errors.phone}
+              </div>
+            )}
+          </div>
+
+          {/* NID Number */}
+          <div>
+            <label style={{
+              display: 'block',
+              marginBottom: '8px',
+              fontSize: '14px',
+              fontWeight: '600',
+              color: '#374151'
+            }}>
+              NID Number <span style={{ color: '#ef4444' }}>*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="10-17 digits Bangladeshi NID"
+              value={nid}
+              onChange={(e) => {
+                setNid(e.target.value);
+                clearFieldError('nid');
+              }}
+              style={{
+                width: '100%',
+                padding: '14px 16px',
+                fontSize: '16px',
+                color: '#000000',
+                backgroundColor: '#ffffff',
+                border: errors.nid ? '2px solid #f87171' : '2px solid #e5e7eb',
+                borderRadius: '12px',
+                outline: 'none',
+                transition: 'all 0.2s ease-in-out',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+              }}
+              onFocus={(e) => {
+                if (!errors.nid) {
+                  e.target.style.borderColor = '#3b82f6';
+                  e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+                }
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = errors.nid ? '#f87171' : '#e5e7eb';
+                e.target.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
+              }}
+            />
+            {errors.nid && (
+              <div style={{
+                color: '#ef4444',
+                fontSize: '13px',
+                marginTop: '6px',
+                fontWeight: '500'
+              }}>
+                {errors.nid}
+              </div>
+            )}
+          </div>
+
+          {/* Age */}
+          <div>
+            <label style={{
+              display: 'block',
+              marginBottom: '8px',
+              fontSize: '14px',
+              fontWeight: '600',
+              color: '#374151'
+            }}>
+              Age <span style={{ color: '#ef4444' }}>*</span>
+            </label>
+            <input
+              type="number"
+              placeholder="Must be 18 or older"
+              value={age}
+              onChange={(e) => {
+                setAge(e.target.value);
+                clearFieldError('age');
+              }}
+              min="18"
+              style={{
+                width: '100%',
+                padding: '14px 16px',
+                fontSize: '16px',
+                color: '#000000',
+                backgroundColor: '#ffffff',
+                border: errors.age ? '2px solid #f87171' : '2px solid #e5e7eb',
+                borderRadius: '12px',
+                outline: 'none',
+                transition: 'all 0.2s ease-in-out',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+              }}
+              onFocus={(e) => {
+                if (!errors.age) {
+                  e.target.style.borderColor = '#3b82f6';
+                  e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+                }
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = errors.age ? '#f87171' : '#e5e7eb';
+                e.target.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
+              }}
+            />
+            {errors.age && (
+              <div style={{
+                color: '#ef4444',
+                fontSize: '13px',
+                marginTop: '6px',
+                fontWeight: '500'
+              }}>
+                {errors.age}
+              </div>
+            )}
+          </div>
+
+          {/* Profile Picture */}
+          <div>
+            <label style={{
+              display: 'block',
+              marginBottom: '8px',
+              fontSize: '14px',
+              fontWeight: '600',
+              color: '#374151'
+            }}>
+              Profile Picture <span style={{ color: '#6b7280', fontWeight: '400' }}>(Optional)</span>
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                fontSize: '14px',
+                color: '#000000',
+                backgroundColor: '#ffffff',
+                border: errors.file ? '2px solid #f87171' : '2px solid #e5e7eb',
+                borderRadius: '12px',
+                outline: 'none',
+                cursor: 'pointer'
+              }}
+            />
+            <div style={{
+              fontSize: '12px',
+              color: '#6b7280',
+              marginTop: '6px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}>
+              📁 Max file size: 2MB • Supported: JPG, PNG, GIF
+            </div>
+            {errors.file && (
+              <div style={{
+                color: '#ef4444',
+                fontSize: '13px',
+                marginTop: '6px',
+                fontWeight: '500'
+              }}>
+                {errors.file}
+              </div>
+            )}
+            {file && !errors.file && (
+              <div style={{
+                color: '#16a34a',
+                fontSize: '13px',
+                marginTop: '6px',
+                fontWeight: '500',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}>
+                ✅ Selected: {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+              </div>
+            )}
+          </div>
+
+          {/* Submit Button */}
+          <button
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            style={{
+              width: '100%',
+              padding: '16px 24px',
+              fontSize: '16px',
+              fontWeight: '600',
+              color: '#ffffff',
+              backgroundColor: isSubmitting ? '#9ca3af' : '#3b82f6',
+              border: 'none',
+              borderRadius: '12px',
+              cursor: isSubmitting ? 'not-allowed' : 'pointer',
+              marginTop: '8px',
+              transition: 'all 0.2s ease-in-out',
+              boxShadow: isSubmitting ? 'none' : '0 4px 14px rgba(59, 130, 246, 0.25)',
+              transform: isSubmitting ? 'none' : 'translateY(0)'
+            }}
+            onMouseOver={(e) => {
+              if (!isSubmitting) {
+                e.currentTarget.style.backgroundColor = '#2563eb';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 6px 20px rgba(59, 130, 246, 0.35)';
+              }
+            }}
+            onMouseOut={(e) => {
+              if (!isSubmitting) {
+                e.currentTarget.style.backgroundColor = '#3b82f6';
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 4px 14px rgba(59, 130, 246, 0.25)';
+              }
+            }}
+          >
+            {isSubmitting ? '⏳ Creating Account...' : '🚀 Create Admin Account'}
+          </button>
+        </div>
       </div>
     </div>
   );
