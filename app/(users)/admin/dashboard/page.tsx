@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Link from 'next/link';
 
 async function getAdminData() {
     const response = await axios.get(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/admin`);
@@ -157,13 +158,23 @@ export default function AdminDashboard() {
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900">{item.email}</td>
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900">{item.phone}</td>
                         <td className="whitespace-nowrap px-3 py-4 text-sm">
-                          <span className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${
-                            item.status === 'active' 
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-red-100 text-red-800'
-                          }`}>
-                            {item.status}
-                          </span>
+                          <div className="flex items-center space-x-2">
+                            <span className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${
+                              item.status === 'active' 
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-red-100 text-red-800'
+                            }`}>
+                              {item.status}
+                            </span>
+                            {activeTab === 'admin' && (
+                              <Link
+                                href={`/admin/status/${item.id}`}
+                                className="text-[#00B7EB] hover:text-[#0095C0] text-sm font-medium ml-2"
+                              >
+                                Change Status
+                              </Link>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))}

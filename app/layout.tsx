@@ -62,8 +62,20 @@ export default function RootLayout({
                 </div>
               </div>
 
-              {/* Cart icon */}
-              <div className="flex items-center">
+              {/* Auth and Cart */}
+              <div className="flex items-center space-x-4">
+                <Link 
+                  href="/login" 
+                  className="text-gray-700 hover:text-[#00B7EB] px-4 py-2 text-sm font-medium border border-transparent hover:border-[#00B7EB] rounded-lg transition-colors"
+                >
+                  Login
+                </Link>
+                <Link 
+                  href="/admin/registration" 
+                  className="bg-[#00B7EB] text-white hover:bg-[#0095C0] px-4 py-2 text-sm font-medium rounded-lg transition-colors"
+                >
+                  Sign Up
+                </Link>
                 <Link href="/cart" className="text-gray-700 hover:text-[#00B7EB] p-2">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="h-6 w-6">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -75,6 +87,7 @@ export default function RootLayout({
         </header>
 
         {/* Main content */}
+        
         <main className="flex-grow bg-white">
           {children}
         </main>
@@ -97,14 +110,14 @@ export default function RootLayout({
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                     </svg>
-                    +1 (555) 123-4567
+                    +8801797241407
                   </p>
                   <p className="text-gray-600 flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
-                    123 Gadget Street, Tech City, TC 12345
+                    123,Dhaka-1202
                   </p>
                 </div>
               </div>
@@ -146,7 +159,7 @@ export default function RootLayout({
             </div>
 
             <div className="mt-8 pt-8 border-t border-gray-200">
-              <p className="text-center text-gray-500">© 2025 The Gadgeto. All rights reserved.</p>
+              <p className="text-center text-gray-500"> The Gadgeto</p>
             </div>
           </div>
         </footer>

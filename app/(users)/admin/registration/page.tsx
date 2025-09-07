@@ -5,6 +5,64 @@ import { z } from 'zod';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 
+// Types for our admin data
+interface AdminFormData {
+  id: number;
+  name: string;
+  email: string;
+  password: string;
+  phone: string;
+  nid: string;
+  age: number;
+}
+
+// API functions
+async function createAdmin(adminData: AdminFormData, file: File | null) {
+  try {
+    const formData = new FormData();
+    
+    // Insert all admin data to FormData
+    formData.append('id', adminData.id.toString());
+    formData.append('name', adminData.name);
+    formData.append('email', adminData.email);
+    formData.append('password', adminData.password);
+    formData.append('phone', adminData.phone);
+    formData.append('nid', adminData.nid);
+    formData.append('age', adminData.age.toString());
+    
+    if (file) {
+      formData.append('myfile', file);
+    }
+
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_ENDPOINT}/admin/createAdmin`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function validateFormData(formData: any) {
+  const validation = adminSchema.safeParse(formData);
+  if (!validation.success) {
+    const formattedErrors: Record<string, string> = {};
+    validation.error.issues.forEach((issue) => {
+      const path = issue.path[0] as string;
+      formattedErrors[path] = issue.message;
+    });
+    throw { type: 'validation', errors: formattedErrors };
+  }
+  return validation.data;
+}
+
 // Define Zod schema with coerce that parse the input field
 const adminSchema = z.object({
   id: z.coerce
@@ -49,35 +107,47 @@ export default function AdminRegistration() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
 
-  const createAdmin = async (adminData: any, file: File | null) => {
-    const formData = new FormData();
+  async function resetForm() {
+    setId('');
+    setName('');
+    setEmail('');
+    setPassword('');
+    setPhone('');
+    setNid('');
+    setAge('');
+    setFile(null);
     
-    // Append all admin data to FormData
-    formData.append('id', adminData.id.toString());
-    formData.append('name', adminData.name);
-    formData.append('email', adminData.email);
-    formData.append('password', adminData.password);
-    formData.append('phone', adminData.phone);
-    formData.append('nid', adminData.nid);
-    formData.append('age', adminData.age.toString());
-    
-    // Append file if exists (matching your backend field name 'myfile')
-    if (file) {
-      formData.append('myfile', file);
+    // Reset file input
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
     }
+  }
 
-    const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_API_ENDPOINT}/admin/createAdmin`,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+  async function handleBackendError(error: any) {
+    console.error('Error creating admin:', error);
+    
+    if (error.response?.data?.message) {
+      // Backend validation errors
+      if (Array.isArray(error.response.data.message)) {
+        const backendErrors: Record<string, string> = {};
+        error.response.data.message.forEach((msg: string) => {
+          // Parse backend error messages and map to fields
+          if (msg.includes('email')) backendErrors.email = msg;
+          else if (msg.includes('phone')) backendErrors.phone = msg;
+          else if (msg.includes('id')) backendErrors.id = msg;
+          else backendErrors.general = msg;
+        });
+        return backendErrors;
       }
-    );
-
-    return response.data;
-  };
+      return { general: error.response.data.message };
+    } else if (error.response?.status === 409) {
+      return { general: 'Admin with this email or ID already exists' };
+    } else if (error.response?.status === 400) {
+      return { general: 'Invalid data provided. Please check your inputs.' };
+    }
+    return { general: 'Failed to create admin. Please try again.' };
+  }
 
   const handleSubmit = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -98,84 +168,45 @@ export default function AdminRegistration() {
       file
     };
 
-    // Validate form using safeParse
-    const validation = adminSchema.safeParse(formDataForValidation);
+    try {
+      // Validate form data
+      const validatedData = await validateFormData(formDataForValidation);
 
-    if (validation.success) {
-      try {
-        const validatedData = {
-          id: parseInt(id),
-          name: name.trim(),
-          email: email.trim(),
-          password,
-          phone: phone.trim(),
-          nid: nid.trim(),
-          age: parseInt(age),
-        };
+      // Prepare admin data
+      const adminData = {
+        id: parseInt(id),
+        name: name.trim(),
+        email: email.trim(),
+        password,
+        phone: phone.trim(),
+        nid: nid.trim(),
+        age: parseInt(age),
+      };
 
-        // Call the API
-        const result = await createAdmin(validatedData, file);
-        console.log('Admin created successfully:', result);
+      // Create admin
+      const result = await createAdmin(adminData, file);
+      console.log('Admin created successfully:', result);
 
-        setSuccessMessage('Admin registration successful!');
-        
-        // Reset form
-        setId('');
-        setName('');
-        setEmail('');
-        setPassword('');
-        setPhone('');
-        setNid('');
-        setAge('');
-        setFile(null);
-        
-        // Reset file input
-        const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-        if (fileInput) {
-          fileInput.value = '';
-        }
-        
-        // Redirect after success
-        setTimeout(() => {
-          router.push('/admin/dashboard');
-        }, 2000);
-        
-      } catch (error: any) {
-        console.error('Error creating admin:', error);
-        
-        // Handle different types of errors
-        if (error.response?.data?.message) {
-          // Backend validation errors
-          if (Array.isArray(error.response.data.message)) {
-            const backendErrors: Record<string, string> = {};
-            error.response.data.message.forEach((msg: string) => {
-              // Parse backend error messages and map to fields
-              if (msg.includes('email')) backendErrors.email = msg;
-              else if (msg.includes('phone')) backendErrors.phone = msg;
-              else if (msg.includes('id')) backendErrors.id = msg;
-              else backendErrors.general = msg;
-            });
-            setErrors(backendErrors);
-          } else {
-            setErrors({ general: error.response.data.message });
-          }
-        } else if (error.response?.status === 409) {
-          setErrors({ general: 'Admin with this email or ID already exists' });
-        } else if (error.response?.status === 400) {
-          setErrors({ general: 'Invalid data provided. Please check your inputs.' });
-        } else {
-          setErrors({ general: 'Failed to create admin. Please try again.' });
-        }
-      }
-    } else {
-      // Format Zod validation errors
-      const formattedErrors: Record<string, string> = {};
-      validation.error.issues.forEach((issue) => {
-        const path = issue.path[0] as string;
-        formattedErrors[path] = issue.message;
-      });
+      // Show success message
+      setSuccessMessage('Admin registration successful!');
       
-      setErrors(formattedErrors);
+      // Reset the form
+      await resetForm();
+      
+      // Redirect after success
+      setTimeout(() => {
+        router.push('/admin/dashboard');
+      }, 2000);
+      
+    } catch (error: any) {
+      if (error.type === 'validation') {
+        setErrors(error.errors);
+      } else {
+        const backendErrors = await handleBackendError(error);
+        setErrors(backendErrors);
+      }
+    } finally {
+      setIsSubmitting(false);
     }
     
     setIsSubmitting(false);
@@ -278,7 +309,7 @@ export default function AdminRegistration() {
             fontSize: '14px',
             fontWeight: '500'
           }}>
-            ✅ {successMessage}
+             {successMessage}
           </div>
         )}
         
@@ -298,7 +329,7 @@ export default function AdminRegistration() {
             </label>
             <input
               type="text"
-              placeholder="Enter Admin ID (positive number)"
+              placeholder="Enter Admin ID"
               value={id}
               onChange={(e) => {
                 setId(e.target.value);
@@ -352,7 +383,7 @@ export default function AdminRegistration() {
             </label>
             <input
               type="text"
-              placeholder="Must start with capital letter (min 5 chars)"
+              placeholder="Enter Your Name"
               value={name}
               onChange={(e) => {
                 setName(e.target.value);
@@ -514,7 +545,7 @@ export default function AdminRegistration() {
             </label>
             <input
               type="tel"
-              placeholder="A valid Bangladeshi number (01XXXXXXXXX)"
+              placeholder="A valid Bangladeshi number"
               value={phone}
               onChange={(e) => {
                 setPhone(e.target.value);
@@ -699,7 +730,7 @@ export default function AdminRegistration() {
               alignItems: 'center',
               gap: '4px'
             }}>
-              📁 Max file size: 2MB • Supported: JPG, PNG, GIF
+              Max file size: 2MB 
             </div>
             {errors.file && (
               <div style={{
@@ -721,7 +752,7 @@ export default function AdminRegistration() {
                 alignItems: 'center',
                 gap: '6px'
               }}>
-                ✅ Selected: {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                Selected: {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
               </div>
             )}
           </div>
@@ -760,7 +791,7 @@ export default function AdminRegistration() {
               }
             }}
           >
-            {isSubmitting ? '⏳ Creating Account...' : '🚀 Create Admin Account'}
+            {isSubmitting ? ' Creating Account...' : 'Create Admin Account'}
           </button>
         </div>
       </div>
