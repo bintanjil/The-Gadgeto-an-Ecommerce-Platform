@@ -38,6 +38,7 @@ async function createAdmin(adminData: AdminFormData, file: File | null) {
       `${process.env.NEXT_PUBLIC_API_ENDPOINT}/admin/createAdmin`,
       formData,
       {
+        withCredentials: true,
         headers: {
           'Content-Type': 'multipart/form-data',
         },

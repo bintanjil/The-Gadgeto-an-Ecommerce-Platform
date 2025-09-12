@@ -1,8 +1,8 @@
-
+import './globals.css'
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
 import Link from "next/link";
+import { AuthProvider } from '../context/AuthContext';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,6 +29,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >
+        <AuthProvider>
+          {/* Header */}
         {/* Header */}
         <header className="bg-white shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -70,12 +72,31 @@ export default function RootLayout({
                 >
                   Login
                 </Link>
-                <Link 
-                  href="/admin/registration" 
-                  className="bg-[#00B7EB] text-white hover:bg-[#0095C0] px-4 py-2 text-sm font-medium rounded-lg transition-colors"
-                >
-                  Sign Up
-                </Link>
+                
+                {/* Registration Dropdown */}
+                <div className="relative group">
+                  <button className="bg-[#00B7EB] text-white hover:bg-[#0095C0] px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center">
+                    Sign Up
+                    <svg className="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <Link 
+                      href="/admin/registration" 
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#00B7EB] first:rounded-t-lg"
+                    >
+                      Admin Registration
+                    </Link>
+                    <Link 
+                      href="/seller/registration" 
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#00B7EB] last:rounded-b-lg"
+                    >
+                      Seller Registration
+                    </Link>
+                  </div>
+                </div>
+                
                 <Link href="/cart" className="text-gray-700 hover:text-[#00B7EB] p-2">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="h-6 w-6">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -163,6 +184,7 @@ export default function RootLayout({
             </div>
           </div>
         </footer>
+        </AuthProvider>
       </body>
     </html>
   );

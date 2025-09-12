@@ -2,15 +2,35 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 async function getAdminData() {
-    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/admin`);
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/admin`, {
+        withCredentials: true,
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
     return response.data;
 }
 
 async function getSellersData() {
-    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/admin/sellers`);
-    return response.data;
+    try {
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/admin/sellers`, {
+            withCredentials: true,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        console.log('Seller API Response:', response.data);
+        if (Array.isArray(response.data)) {
+            return response.data;
+        }
+        return response.data?.data || [];
+    } catch (error) {
+        console.error('Error fetching sellers:', error);
+        throw error;
+    }
 }
 
 interface Admin {
@@ -39,26 +59,53 @@ export default function AdminDashboard() {
   const [sellersData, setSellersData] = useState<Seller[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/auth/logout`, {}, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      // Clear any local storage or cookies
+      localStorage.clear();
+      router.push('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+      // Redirect to login anyway
+      router.push('/login');
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setError(null);
+        setLoading(true);
         
         if (activeTab === 'admin') {
-          setLoading(true);
           const data = await getAdminData();
           console.log('Fetched Admin Data:', data);
-          setAdminData(data);
+          setAdminData(Array.isArray(data) ? data : []);
         } else if (activeTab === 'sellers') {
-          setLoading(true);
           const data = await getSellersData();
           console.log('Fetched Sellers Data:', data);
-          setSellersData(data);
+          if (data && Array.isArray(data)) {
+            setSellersData(data);
+          } else {
+            console.error('Invalid sellers data format:', data);
+            setError('Invalid data format received from server');
+          }
         }
       } catch (error: any) {
         console.error('Error in component:', error);
-        setError(error.message || `Failed to load ${activeTab} data`);
+        if (error.response?.status === 401) {
+          router.push('/login');
+        } else {
+          setError(error.response?.data?.message || `Failed to load ${activeTab} data. ${error.message}`);
+        }
       } finally {
         setLoading(false);
       }
@@ -97,12 +144,32 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        <div className="sm:flex sm:items-center">
+        <div className="sm:flex sm:items-center justify-between">
           <div className="sm:flex-auto">
             <h1 className="text-3xl font-semibold text-[#00B7EB]">Admin Dashboard</h1>
             <p className="mt-2 text-sm text-gray-700">
               Manage administrators and sellers in the system.
             </p>
+          </div>
+          <div className="flex gap-4">
+            <Link
+              href="/admin/registration"
+              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#00B7EB] hover:bg-[#0095C0] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00B7EB]"
+            >
+              Add Admin
+            </Link>
+            <Link
+              href="/seller/registration"
+              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#00B7EB] hover:bg-[#0095C0] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00B7EB]"
+            >
+              Add Seller
+            </Link>
+            <button
+              onClick={() => handleLogout()}
+              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+            >
+              Logout
+            </button>
           </div>
         </div>
 
