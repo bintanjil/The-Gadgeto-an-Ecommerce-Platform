@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import { AuthProvider } from '../context/AuthContext';
 
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -30,160 +31,158 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >
         <AuthProvider>
-          {/* Header */}
-        {/* Header */}
-        <header className="bg-white shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              {/* Logo and primary navigation */}
-              <div className="flex items-center">
-                <Link href="/home" className="flex items-center">
-                  <span className="text-2xl font-bold text-[#00B7EB]">The Gadgeto</span>
-                </Link>
-                <nav className="hidden md:flex ml-10 space-x-8">
-                  <Link href="/home" className="text-gray-700 hover:text-[#00B7EB] px-3 py-2 text-sm font-medium">
-                    Home
-                  </Link>
-                  <Link href="/products" className="text-gray-700 hover:text-[#00B7EB] px-3 py-2 text-sm font-medium">
-                    Products
-                  </Link>
-                  <Link href="/about" className="text-gray-700 hover:text-[#00B7EB] px-3 py-2 text-sm font-medium">
-                    About
-                  </Link>
-                </nav>
-              </div>
-
-              {/* Search bar */}
-              <div className="flex-1 max-w-lg mx-8 hidden md:block">
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Search products..."
-                    className="w-full bg-gray-100 border border-gray-300 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-[#00B7EB] focus:border-transparent"
-                  />
-                </div>
-              </div>
-
-              {/* Auth and Cart */}
-              <div className="flex items-center space-x-4">
-                <Link 
-                  href="/login" 
-                  className="text-gray-700 hover:text-[#00B7EB] px-4 py-2 text-sm font-medium border border-transparent hover:border-[#00B7EB] rounded-lg transition-colors"
-                >
-                  Login
-                </Link>
-                
-                {/* Registration Dropdown */}
-                <div className="relative group">
-                  <button className="bg-[#00B7EB] text-white hover:bg-[#0095C0] px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center">
-                    Sign Up
-                    <svg className="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-                  <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                    <Link 
-                      href="/admin/registration" 
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#00B7EB] first:rounded-t-lg"
-                    >
-                      Admin Registration
+            {/* Header */}
+            <header className="bg-white shadow-sm">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex justify-between items-center h-16">
+                  {/* Logo and primary navigation */}
+                  <div className="flex items-center">
+                    <Link href="/home" className="flex items-center">
+                      <span className="text-2xl font-bold text-[#00B7EB]">The Gadgeto</span>
                     </Link>
+                    <nav className="hidden md:flex ml-10 space-x-8">
+                      <Link href="/home" className="text-gray-700 hover:text-[#00B7EB] px-3 py-2 text-sm font-medium">
+                        Home
+                      </Link>
+                      <Link href="/products" className="text-gray-700 hover:text-[#00B7EB] px-3 py-2 text-sm font-medium">
+                        Products
+                      </Link>
+                      <Link href="/about" className="text-gray-700 hover:text-[#00B7EB] px-3 py-2 text-sm font-medium">
+                        About
+                      </Link>
+                    </nav>
+                  </div>
+
+                  {/* Search bar */}
+                  <div className="flex-1 max-w-lg mx-8 hidden md:block">
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="Search products..."
+                        className="w-full bg-gray-100 border border-gray-300 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-[#00B7EB] focus:border-transparent"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Auth and Cart */}
+                  <div className="flex items-center space-x-4">
                     <Link 
-                      href="/seller/registration" 
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#00B7EB] last:rounded-b-lg"
+                      href="/login" 
+                      className="text-gray-700 hover:text-[#00B7EB] px-4 py-2 text-sm font-medium border border-transparent hover:border-[#00B7EB] rounded-lg transition-colors"
                     >
-                      Seller Registration
+                      Login
+                    </Link>
+                    
+                    {/* Registration Dropdown */}
+                    <div className="relative group">
+                      <button className="bg-[#00B7EB] text-white hover:bg-[#0095C0] px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center">
+                        Sign Up
+                        <svg className="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+                      <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                        <Link 
+                          href="/admin/registration" 
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#00B7EB] first:rounded-t-lg"
+                        >
+                          Admin Registration
+                        </Link>
+                        <Link 
+                          href="/seller/registration" 
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#00B7EB] last:rounded-b-lg"
+                        >
+                          Seller Registration
+                        </Link>
+                      </div>
+                    </div>
+                    
+                    <Link href="/cart" className="text-gray-700 hover:text-[#00B7EB] p-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="h-6 w-6">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
                     </Link>
                   </div>
                 </div>
-                
-                <Link href="/cart" className="text-gray-700 hover:text-[#00B7EB] p-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="h-6 w-6">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                </Link>
               </div>
-            </div>
-          </div>
-        </header>
+            </header>
 
-        {/* Main content */}
-        
-        <main className="flex-grow bg-white">
-          {children}
-        </main>
+            {/* Main content */}
+            <main className="flex-grow bg-white">
+              {children}
+            </main>
 
-        {/* Footer with contact information */}
-        <footer className="bg-gray-100">
-          <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Contact Information */}
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Contact Us</h3>
-                <div className="space-y-3">
-                  <p className="text-gray-600 flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                    info@thegadgeto.com
-                  </p>
-                  <p className="text-gray-600 flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                    </svg>
-                    +8801797241407
-                  </p>
-                  <p className="text-gray-600 flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    123,Dhaka-1202
-                  </p>
+            {/* Footer with contact information */}
+            <footer className="bg-gray-100">
+              <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  {/* Contact Information */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Contact Us</h3>
+                    <div className="space-y-3">
+                      <p className="text-gray-600 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        info@thegadgeto.com
+                      </p>
+                      <p className="text-gray-600 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                        </svg>
+                        +8801797241407
+                      </p>
+                      <p className="text-gray-600 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        123,Dhaka-1202
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Quick Links */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Links</h3>
+                    <ul className="space-y-2">
+                      <li>
+                        <Link href="/products" className="text-gray-600 hover:text-[#00B7EB]">Products</Link>
+                      </li>
+                      <li>
+                        <Link href="/about" className="text-gray-600 hover:text-[#00B7EB]">About Us</Link>
+                      </li>
+                      <li>
+                        <Link href="/privacy" className="text-gray-600 hover:text-[#00B7EB]">Privacy Policy</Link>
+                      </li>
+                      <li>
+                        <Link href="/terms" className="text-gray-600 hover:text-[#00B7EB]">Terms of Service</Link>
+                      </li>
+                    </ul>
+                  </div>
+
+                  {/* Newsletter */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Stay Updated</h3>
+                    <p className="text-gray-600 mb-4">Subscribe to our newsletter for the latest updates and offers.</p>
+                    <div className="flex">
+                      <input
+                        type="email"
+                        placeholder="Enter your email"
+                        className="flex-1 px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-[#00B7EB] focus:border-transparent"
+                      />
+                      <button className="px-4 py-2 bg-[#00B7EB] text-white rounded-r-md hover:bg-[#0095c0] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00B7EB]">
+                        Subscribe
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-8 pt-8 border-t border-gray-200">
+                  <p className="text-center text-gray-500"> The Gadgeto</p>
                 </div>
               </div>
-
-              {/* Quick Links */}
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Links</h3>
-                <ul className="space-y-2">
-                  <li>
-                    <Link href="/products" className="text-gray-600 hover:text-[#00B7EB]">Products</Link>
-                  </li>
-                  <li>
-                    <Link href="/about" className="text-gray-600 hover:text-[#00B7EB]">About Us</Link>
-                  </li>
-                  <li>
-                    <Link href="/privacy" className="text-gray-600 hover:text-[#00B7EB]">Privacy Policy</Link>
-                  </li>
-                  <li>
-                    <Link href="/terms" className="text-gray-600 hover:text-[#00B7EB]">Terms of Service</Link>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Newsletter */}
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Stay Updated</h3>
-                <p className="text-gray-600 mb-4">Subscribe to our newsletter for the latest updates and offers.</p>
-                <div className="flex">
-                  <input
-                    type="email"
-                    placeholder="Enter your email"
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-[#00B7EB] focus:border-transparent"
-                  />
-                  <button className="px-4 py-2 bg-[#00B7EB] text-white rounded-r-md hover:bg-[#0095c0] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00B7EB]">
-                    Subscribe
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-8 pt-8 border-t border-gray-200">
-              <p className="text-center text-gray-500"> The Gadgeto</p>
-            </div>
-          </div>
-        </footer>
+            </footer>
         </AuthProvider>
       </body>
     </html>
