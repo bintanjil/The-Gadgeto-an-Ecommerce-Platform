@@ -22,8 +22,6 @@ export default function LoginForm() {
         { withCredentials: true }
       );
 
-      // Cookie is automatically set by the backend
-      // Redirect based on role
       const { role } = response.data.user;
       if (role === 'admin') {
         router.push('/admin/dashboard');

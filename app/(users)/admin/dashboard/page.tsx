@@ -70,7 +70,7 @@ async function getAdminData() {
     // Handle both array and structured responses
     let data = response.data;
     if (data && typeof data === 'object' && data.data && Array.isArray(data.data)) {
-      data = data.data; // Extract data from structured response
+      data = data.data; 
     } else if (data && typeof data === 'object' && data.success && Array.isArray(data.data)) {
       data = data.data;
     }
@@ -496,7 +496,22 @@ export default function AdminDashboard() {
                           </td>
                           <td className="whitespace-nowrap px-3 py-4 text-sm">
                             <div className="flex items-center space-x-2">
-                              {(activeTab === 'admin' || activeTab === 'inactive') && (
+                              {activeTab === 'sellers' ? (
+                                <>
+                                  <Link
+                                    href={`/seller/update/${item.id}`}
+                                    className="text-green-600 hover:text-green-800 text-sm font-medium"
+                                  >
+                                    Update
+                                  </Link>
+                                  <Link
+                                    href={`/seller/status/${item.id}`}
+                                    className="text-[#00B7EB] hover:text-[#0095C0] text-sm font-medium"
+                                  >
+                                    Change Status
+                                  </Link>
+                                </>
+                              ) : (activeTab === 'admin' || activeTab === 'inactive') && (
                                 <>
                                   <Link
                                     href={`/admin/status/${item.id}`}
