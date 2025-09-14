@@ -91,7 +91,7 @@ async function getAdminData() {
 
 async function getInactiveAdminsData() {
   try {
-    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/admin/inactive`, {
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/admin/inactive/admins`, {
       withCredentials: true,
       headers: {
         'Content-Type': 'application/json'
@@ -209,20 +209,19 @@ export default function AdminDashboard() {
   const router = useRouter();
 
   const handleLogout = async () => {
-    try {
-      await axios.post(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/auth/logout`, {}, {
-        withCredentials: true,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      localStorage.clear();
-      router.push('/login');
-    } catch (error) {
-      console.error('Logout failed:', error);
-      router.push('/login');
-    }
-  };
+  try {
+    await axios.post(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/auth/logout`, {}, {
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    router.push('/login');
+  } catch (error) {
+    console.error('Logout failed:', error);
+    router.push('/login');
+  }
+};
 
   // Open delete confirmation dialog
   const openDeleteDialog = (id: number, name: string) => {
@@ -359,196 +358,254 @@ export default function AdminDashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Success and Error Messages */}
-        {deleteSuccess && (
-          <div className="mb-4 p-3 bg-green-100 text-green-700 rounded-md">
-            {deleteSuccess}
-          </div>
-        )}
-        {deleteError && (
-          <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
-            {deleteError}
-          </div>
-        )}
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Notification Bar */}
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-md">
+          {deleteSuccess && (
+            <div className="mx-4 p-4 bg-green-50 border-l-4 border-green-400 rounded-lg shadow-lg flex items-center justify-between animate-fade-in-down">
+              <div className="flex items-center">
+                <svg className="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                </svg>
+                <p className="ml-3 text-sm font-medium text-green-800">{deleteSuccess}</p>
+              </div>
+            </div>
+          )}
+          {deleteError && (
+            <div className="mx-4 p-4 bg-red-50 border-l-4 border-red-400 rounded-lg shadow-lg flex items-center justify-between animate-fade-in-down">
+              <div className="flex items-center">
+                <svg className="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd"/>
+                </svg>
+                <p className="ml-3 text-sm font-medium text-red-800">{deleteError}</p>
+              </div>
+            </div>
+          )}
+        </div>
 
-        <div className="sm:flex sm:items-center justify-between">
-          <div className="sm:flex-auto">
-            <h1 className="text-3xl font-semibold text-[#00B7EB]">Admin Dashboard</h1>
-            <p className="mt-2 text-sm text-gray-700">
-              Manage administrators and sellers in the system.
-            </p>
-          </div>
-          <div className="flex gap-4">
-            <Link
-              href="/admin/registration"
-              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#00B7EB] hover:bg-[#0095C0] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00B7EB]"
-            >
-              Add Admin
-            </Link>
-            <Link
-              href="/seller/registration"
-              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#00B7EB] hover:bg-[#0095C0] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00B7EB]"
-            >
-              Add Seller
-            </Link>
-            <button
-              onClick={() => handleLogout()}
-              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-            >
-              Logout
-            </button>
+        {/* Header Section */}
+        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+          <div className="sm:flex sm:items-center justify-between">
+            <div className="sm:flex-auto">
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-[#00B7EB] to-[#0095C0] bg-clip-text text-transparent">
+                Admin Dashboard
+              </h1>
+              <p className="mt-2 text-sm text-gray-600">
+                Manage administrators and sellers in the system
+              </p>
+            </div>
+            <div className="mt-4 sm:mt-0 flex flex-wrap gap-3">
+              <Link
+                href="/admin/registration"
+                className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium text-white bg-gradient-to-r from-[#00B7EB] to-[#0095C0] hover:from-[#0095C0] hover:to-[#00B7EB] transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                Add Admin
+              </Link>
+              <Link
+                href="/seller/registration"
+                className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium text-white bg-gradient-to-r from-[#00B7EB] to-[#0095C0] hover:from-[#0095C0] hover:to-[#00B7EB] transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                Add Seller
+              </Link>
+              <button
+                onClick={() => handleLogout()}
+                className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                </svg>
+                Logout
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Tab Navigation */}
-        <div className="mt-8 border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8">
+        <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
+          <nav className="flex space-x-4">
             <button
               onClick={() => setActiveTab('admin')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              className={`flex items-center px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
                 activeTab === 'admin'
-                  ? 'border-[#00B7EB] text-[#00B7EB]'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'bg-gradient-to-r from-[#00B7EB] to-[#0095C0] text-white shadow-md'
+                  : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+              </svg>
               All Administrators
             </button>
             <button
               onClick={() => setActiveTab('inactive')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              className={`flex items-center px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
                 activeTab === 'inactive'
-                  ? 'border-[#00B7EB] text-[#00B7EB]'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'bg-gradient-to-r from-[#00B7EB] to-[#0095C0] text-white shadow-md'
+                  : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
               Inactive Administrators
             </button>
             <button
               onClick={() => setActiveTab('sellers')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              className={`flex items-center px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
                 activeTab === 'sellers'
-                  ? 'border-[#00B7EB] text-[#00B7EB]'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'bg-gradient-to-r from-[#00B7EB] to-[#0095C0] text-white shadow-md'
+                  : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+              </svg>
               Sellers
             </button>
           </nav>
         </div>
         
-        <div className="mt-8 flex flex-col">
-          <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-            <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
-              <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
-                <table className="min-w-full divide-y divide-gray-300">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">ID</th>
-                      <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Name</th>
-                      <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Email</th>
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
+                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Name</th>
+                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
+                  {/* Conditionally show columns based on active tab */}
+                  {(activeTab === 'admin' || activeTab === 'inactive') && (
+                    <>
+                      <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Phone</th>
+                      <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Age</th>
+                    </>
+                  )}
+                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {Array.isArray(currentData) && currentData.length > 0 ? (
+                  currentData.map((item) => (
+                    <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {item.id}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0 h-10 w-10">
+                            <div className="h-10 w-10 rounded-full bg-gradient-to-r from-[#00B7EB] to-[#0095C0] flex items-center justify-center text-white font-medium text-lg">
+                              {item.name.charAt(0)}
+                            </div>
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">{item.name}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.email}</td>
+                      
                       {/* Conditionally show columns based on active tab */}
                       {(activeTab === 'admin' || activeTab === 'inactive') && (
                         <>
-                          <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Phone</th>
-                          <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Age</th>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {(item as Admin).phone || 'N/A'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {(item as Admin).age || 'N/A'}
+                          </td>
                         </>
                       )}
-                      <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
-                      <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200 bg-white">
-                    {Array.isArray(currentData) && currentData.length > 0 ? (
-                      currentData.map((item) => (
-                        <tr key={item.id} className="hover:bg-gray-50">
-                          <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                            {item.id}
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
-                            {item.name}
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900">{item.email}</td>
-                          
-                          {/* Conditionally show columns based on active tab */}
-                          {(activeTab === 'admin' || activeTab === 'inactive') && (
+                      
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          item.status === 'active' 
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {item.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex items-center space-x-3">
+                          {activeTab === 'sellers' ? (
                             <>
-                              <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
-                                {(item as Admin).phone || 'N/A'}
-                              </td>
-                              <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
-                                {(item as Admin).age || 'N/A'}
-                              </td>
+                              <Link
+                                href={`/seller/update/${item.id}`}
+                                className="inline-flex items-center px-3 py-1 rounded-md bg-green-50 text-green-700 hover:bg-green-100 transition-colors duration-200"
+                              >
+                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                                Update
+                              </Link>
+                              <Link
+                                href={`/seller/status/${item.id}`}
+                                className="inline-flex items-center px-3 py-1 rounded-md bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors duration-200"
+                              >
+                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                </svg>
+                                Status
+                              </Link>
+                            </>
+                          ) : (activeTab === 'admin' || activeTab === 'inactive') && (
+                            <>
+                              <Link
+                                href={`/admin/status/${item.id}`}
+                                className="inline-flex items-center px-3 py-1 rounded-md bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors duration-200"
+                              >
+                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                </svg>
+                                Status
+                              </Link>
+                              <Link
+                                href={`/admin/update/${item.id}`}
+                                className="inline-flex items-center px-3 py-1 rounded-md bg-green-50 text-green-700 hover:bg-green-100 transition-colors duration-200"
+                              >
+                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                                Edit
+                              </Link>
+                              <button
+                                onClick={() => openDeleteDialog(item.id, item.name)}
+                                disabled={deleteLoading === item.id}
+                                className="inline-flex items-center px-3 py-1 rounded-md bg-red-50 text-red-700 hover:bg-red-100 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                                {deleteLoading === item.id ? 'Deleting...' : 'Delete'}
+                              </button>
                             </>
                           )}
-                          
-                          <td className="whitespace-nowrap px-3 py-4 text-sm">
-                            <div className="flex items-center space-x-2">
-                              <span className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${
-                                item.status === 'active' 
-                                  ? 'bg-green-100 text-green-800'
-                                  : 'bg-red-100 text-red-800'
-                              }`}>
-                                {item.status}
-                              </span>
-                            </div>
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-4 text-sm">
-                            <div className="flex items-center space-x-2">
-                              {activeTab === 'sellers' ? (
-                                <>
-                                  <Link
-                                    href={`/seller/update/${item.id}`}
-                                    className="text-green-600 hover:text-green-800 text-sm font-medium"
-                                  >
-                                    Update
-                                  </Link>
-                                  <Link
-                                    href={`/seller/status/${item.id}`}
-                                    className="text-[#00B7EB] hover:text-[#0095C0] text-sm font-medium"
-                                  >
-                                    Change Status
-                                  </Link>
-                                </>
-                              ) : (activeTab === 'admin' || activeTab === 'inactive') && (
-                                <>
-                                  <Link
-                                    href={`/admin/status/${item.id}`}
-                                    className="text-[#00B7EB] hover:text-[#0095C0] text-sm font-medium"
-                                  >
-                                    Change Status
-                                  </Link>
-                                  <Link
-                                    href={`/admin/update/${item.id}`}
-                                    className="text-green-600 hover:text-green-800 text-sm font-medium"
-                                  >
-                                    Edit
-                                  </Link>
-                                  <button
-                                    onClick={() => openDeleteDialog(item.id, item.name)}
-                                    disabled={deleteLoading === item.id}
-                                    className="text-red-600 hover:text-red-800 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                                  >
-                                    {deleteLoading === item.id ? 'Deleting...' : 'Delete'}
-                                  </button>
-                                </>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan={activeTab === 'sellers' ? 5 : 7} className="text-center py-8">
-                          <p className="text-gray-500 text-sm">No {tabTitle.toLowerCase()} data available</p>
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={activeTab === 'sellers' ? 5 : 7} className="px-6 py-10 text-center">
+                      <div className="flex flex-col items-center justify-center">
+                        <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                        </svg>
+                        <p className="mt-2 text-sm text-gray-500">No {tabTitle.toLowerCase()} data available</p>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
