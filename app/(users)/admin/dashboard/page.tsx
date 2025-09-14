@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -154,7 +154,65 @@ async function getSellersData() {
   }
 }
 
-// Delete function
+async function getActiveSellers() {
+  try {
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/seller/active/list`, {
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    let data = response.data;
+    if (data && typeof data === 'object' && data.data && Array.isArray(data.data)) {
+      data = data.data;
+    } else if (data && typeof data === 'object' && data.success && Array.isArray(data.data)) {
+      data = data.data;
+    }
+
+    if (Array.isArray(data)) {
+      return data.map(seller => ({
+        ...seller,
+        id: safeNumber(seller.id)
+      }));
+    }
+    return [];
+  } catch (error) {
+    console.error('Error fetching active sellers:', error);
+    throw error;
+  }
+}
+
+async function getInactiveSellers() {
+  try {
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/seller/inactive/list`, {
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    let data = response.data;
+    if (data && typeof data === 'object' && data.data && Array.isArray(data.data)) {
+      data = data.data;
+    } else if (data && typeof data === 'object' && data.success && Array.isArray(data.data)) {
+      data = data.data;
+    }
+
+    if (Array.isArray(data)) {
+      return data.map(seller => ({
+        ...seller,
+        id: safeNumber(seller.id)
+      }));
+    }
+    return [];
+  } catch (error) {
+    console.error('Error fetching inactive sellers:', error);
+    throw error;
+  }
+}
+
+// Delete functions
 async function deleteAdmin(id: number) {
   try {
     const response = await axios.delete(
@@ -169,6 +227,24 @@ async function deleteAdmin(id: number) {
     return response.data;
   } catch (error) {
     console.error('Error deleting admin:', error);
+    throw error;
+  }
+}
+
+async function deleteSeller(id: number) {
+  try {
+    const response = await axios.delete(
+      `${process.env.NEXT_PUBLIC_API_ENDPOINT}/seller/${id}`,
+      {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting seller:', error);
     throw error;
   }
 }
@@ -190,7 +266,7 @@ interface Seller {
   status: 'active' | 'inactive';
 }
 
-type TabType = 'admin' | 'inactive' | 'sellers';
+type TabType = 'admin' | 'inactive' | 'sellers' | 'active-sellers' | 'inactive-sellers';
 
 // Main Component
 export default function AdminDashboard() {
@@ -198,13 +274,15 @@ export default function AdminDashboard() {
   const [adminData, setAdminData] = useState<Admin[] | null>(null);
   const [inactiveAdminsData, setInactiveAdminsData] = useState<Admin[] | null>(null);
   const [sellersData, setSellersData] = useState<Seller[] | null>(null);
+  const [activeSellersData, setActiveSellersData] = useState<Seller[] | null>(null);
+  const [inactiveSellersData, setInactiveSellersData] = useState<Seller[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deleteLoading, setDeleteLoading] = useState<number | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleteSuccess, setDeleteSuccess] = useState<string | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [adminToDelete, setAdminToDelete] = useState<{ id: number; name: string } | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<{ id: number; name: string; type: 'admin' | 'seller' } | null>(null);
   
   const router = useRouter();
 
@@ -224,23 +302,27 @@ export default function AdminDashboard() {
 };
 
   // Open delete confirmation dialog
-  const openDeleteDialog = (id: number, name: string) => {
-    setAdminToDelete({ id, name });
+  const openDeleteDialog = (id: number, name: string, type: 'admin' | 'seller') => {
+    setItemToDelete({ id, name, type });
     setIsDeleteDialogOpen(true);
   };
 
   // Handle confirmed delete
   const handleConfirmDelete = async () => {
-    if (!adminToDelete) return;
+    if (!itemToDelete) return;
     
     try {
-      setDeleteLoading(adminToDelete.id);
+      setDeleteLoading(itemToDelete.id);
       setDeleteError(null);
       setDeleteSuccess(null);
 
-      await deleteAdmin(adminToDelete.id);
-      
-      setDeleteSuccess(`Admin "${adminToDelete.name}" deleted successfully`);
+      if (itemToDelete.type === 'admin') {
+        await deleteAdmin(itemToDelete.id);
+        setDeleteSuccess(`Admin "${itemToDelete.name}" deleted successfully`);
+      } else {
+        await deleteSeller(itemToDelete.id);
+        setDeleteSuccess(`Seller "${itemToDelete.name}" deleted successfully`);
+      }
       
       // Refresh the data
       if (activeTab === 'admin') {
@@ -249,6 +331,15 @@ export default function AdminDashboard() {
       } else if (activeTab === 'inactive') {
         const data = await getInactiveAdminsData();
         setInactiveAdminsData(data);
+      } else if (activeTab === 'sellers') {
+        const data = await getSellersData();
+        setSellersData(data);
+      } else if (activeTab === 'active-sellers') {
+        const data = await getActiveSellers();
+        setActiveSellersData(data);
+      } else if (activeTab === 'inactive-sellers') {
+        const data = await getInactiveSellers();
+        setInactiveSellersData(data);
       }
       
       // Clear success message after 3 seconds
@@ -256,7 +347,7 @@ export default function AdminDashboard() {
         setDeleteSuccess(null);
       }, 3000);
     } catch (error: any) {
-      setDeleteError(error.response?.data?.message || 'Failed to delete admin');
+      setDeleteError(error.response?.data?.message || `Failed to delete ${itemToDelete.type}`);
       
       // Clear error message after 5 seconds
       setTimeout(() => {
@@ -265,14 +356,14 @@ export default function AdminDashboard() {
     } finally {
       setDeleteLoading(null);
       setIsDeleteDialogOpen(false);
-      setAdminToDelete(null);
+      setItemToDelete(null);
     }
   };
 
   // Handle cancel delete
   const handleCancelDelete = () => {
     setIsDeleteDialogOpen(false);
-    setAdminToDelete(null);
+    setItemToDelete(null);
   };
 
   useEffect(() => {
@@ -293,6 +384,14 @@ export default function AdminDashboard() {
           const data = await getSellersData();
           console.log('Processed sellers data:', data);
           setSellersData(data);
+        } else if (activeTab === 'active-sellers') {
+          const data = await getActiveSellers();
+          console.log('Processed active sellers data:', data);
+          setActiveSellersData(data);
+        } else if (activeTab === 'inactive-sellers') {
+          const data = await getInactiveSellers();
+          console.log('Processed inactive sellers data:', data);
+          setInactiveSellersData(data);
         }
       } catch (error: any) {
         console.error('Full error details:', error);
@@ -319,13 +418,21 @@ export default function AdminDashboard() {
     ? adminData 
     : activeTab === 'inactive' 
       ? inactiveAdminsData 
-      : sellersData;
+      : activeTab === 'sellers'
+        ? sellersData
+        : activeTab === 'active-sellers'
+          ? activeSellersData
+          : inactiveSellersData;
       
   const tabTitle = activeTab === 'admin' 
     ? 'Administrators' 
     : activeTab === 'inactive' 
       ? 'Inactive Administrators' 
-      : 'Sellers';
+      : activeTab === 'sellers'
+        ? 'Sellers'
+        : activeTab === 'active-sellers'
+          ? 'Active Sellers'
+          : 'Inactive Sellers';
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -467,7 +574,33 @@ export default function AdminDashboard() {
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
               </svg>
-              Sellers
+              All Sellers
+            </button>
+            <button
+              onClick={() => setActiveTab('active-sellers')}
+              className={`flex items-center px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+                activeTab === 'active-sellers'
+                  ? 'bg-gradient-to-r from-[#00B7EB] to-[#0095C0] text-white shadow-md'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              Active Sellers
+            </button>
+            <button
+              onClick={() => setActiveTab('inactive-sellers')}
+              className={`flex items-center px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+                activeTab === 'inactive-sellers'
+                  ? 'bg-gradient-to-r from-[#00B7EB] to-[#0095C0] text-white shadow-md'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              Inactive Sellers
             </button>
           </nav>
         </div>
@@ -535,7 +668,7 @@ export default function AdminDashboard() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center space-x-3">
-                          {activeTab === 'sellers' ? (
+                          {(activeTab === 'sellers' || activeTab === 'active-sellers' || activeTab === 'inactive-sellers') ? (
                             <>
                               <Link
                                 href={`/seller/update/${item.id}`}
@@ -555,6 +688,16 @@ export default function AdminDashboard() {
                                 </svg>
                                 Status
                               </Link>
+                              <button
+                                onClick={() => openDeleteDialog(item.id, item.name, 'seller')}
+                                disabled={deleteLoading === item.id}
+                                className="inline-flex items-center px-3 py-1 rounded-md bg-red-50 text-red-700 hover:bg-red-100 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                                {deleteLoading === item.id ? 'Deleting...' : 'Delete'}
+                              </button>
                             </>
                           ) : (activeTab === 'admin' || activeTab === 'inactive') && (
                             <>
@@ -577,7 +720,7 @@ export default function AdminDashboard() {
                                 Edit
                               </Link>
                               <button
-                                onClick={() => openDeleteDialog(item.id, item.name)}
+                                onClick={() => openDeleteDialog(item.id, item.name, 'admin')}
                                 disabled={deleteLoading === item.id}
                                 className="inline-flex items-center px-3 py-1 rounded-md bg-red-50 text-red-700 hover:bg-red-100 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                               >
@@ -614,7 +757,7 @@ export default function AdminDashboard() {
       <ConfirmationDialog
         isOpen={isDeleteDialogOpen}
         title="Confirm Delete"
-        message={`Are you sure you want to delete admin "${adminToDelete?.name}"? This action cannot be undone.`}
+        message={`Are you sure you want to delete ${itemToDelete?.type} "${itemToDelete?.name}"? This action cannot be undone.`}
         onConfirm={handleConfirmDelete}
         onCancel={handleCancelDelete}
         confirmText="Delete"
