@@ -234,99 +234,42 @@ export default function AdminRegistration() {
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #f1f5f9 100%)',
-      padding: '40px 20px',
-      fontFamily: "'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
-    }}>
-      <div style={{
-        maxWidth: '580px',
-        margin: '0 auto',
-        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-        borderRadius: '20px',
-        padding: '40px',
-        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.08), 0 6px 20px rgba(0, 0, 0, 0.05)',
-        backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(255, 255, 255, 0.2)'
-      }}>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 py-10 px-4 font-sans">
+      <div className="max-w-lg mx-auto bg-white/95 rounded-2xl p-8 shadow-2xl shadow-blue-100/50 backdrop-blur-sm border border-white/20">
+        
         {/* Header Section */}
-        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <div style={{
-            width: '80px',
-            height: '80px',
-            backgroundColor: '#e0f2fe',
-            borderRadius: '50%',
-            margin: '0 auto 20px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '32px'
-          }}>
+        <div className="text-center mb-10">
+          <div className="w-20 h-20 bg-blue-100 rounded-full mx-auto mb-5 flex items-center justify-center text-3xl">
             👤
           </div>
-          <h1 style={{
-            fontSize: '28px',
-            fontWeight: '700',
-            color: '#1e293b',
-            margin: '0 0 8px 0',
-            letterSpacing: '-0.5px'
-          }}>
+          <h1 className="text-3xl font-bold text-slate-800 mb-2 tracking-tight">
             Admin Registration
           </h1>
-          <p style={{
-            fontSize: '16px',
-            color: '#64748b',
-            margin: '0'
-          }}>
+          <p className="text-slate-500">
             Create a new administrator account
           </p>
         </div>
 
         {/* General error message */}
         {errors.general && (
-          <div style={{
-            padding: '16px 20px',
-            backgroundColor: '#fef2f2',
-            color: '#dc2626',
-            border: '1px solid #fecaca',
-            borderRadius: '12px',
-            marginBottom: '24px',
-            fontSize: '14px',
-            fontWeight: '500'
-          }}>
+          <div className="p-4 bg-red-50 text-red-600 border border-red-200 rounded-xl mb-6 text-sm font-medium">
             ⚠️ {errors.general}
           </div>
         )}
 
         {successMessage && (
-          <div style={{
-            padding: '16px 20px',
-            backgroundColor: '#f0fdf4',
-            color: '#16a34a',
-            border: '1px solid #bbf7d0',
-            borderRadius: '12px',
-            marginBottom: '24px',
-            fontSize: '14px',
-            fontWeight: '500'
-          }}>
-             {successMessage}
+          <div className="p-4 bg-green-50 text-green-600 border border-green-200 rounded-xl mb-6 text-sm font-medium">
+            ✅ {successMessage}
           </div>
         )}
         
         {/* Form Fields */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div className="space-y-6">
           
           {/* Admin ID */}
           <div>
-            <label style={{
-              display: 'block',
-              marginBottom: '8px',
-              fontSize: '14px',
-              fontWeight: '600',
-              color: '#374151'
-            }}>
-              Admin ID <span style={{ color: '#ef4444' }}>*</span>
+            <label className="block mb-2 text-sm font-semibold text-slate-700">
+              Admin ID <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -336,36 +279,14 @@ export default function AdminRegistration() {
                 setId(e.target.value);
                 clearFieldError('id');
               }}
-              style={{
-                width: '100%',
-                padding: '14px 16px',
-                fontSize: '16px',
-                color: '#000000',
-                backgroundColor: '#ffffff',
-                border: errors.id ? '2px solid #f87171' : '2px solid #e5e7eb',
-                borderRadius: '12px',
-                outline: 'none',
-                transition: 'all 0.2s ease-in-out',
-                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-              }}
-              onFocus={(e) => {
-                if (!errors.id) {
-                  e.target.style.borderColor = '#3b82f6';
-                  e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
-                }
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = errors.id ? '#f87171' : '#e5e7eb';
-                e.target.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
-              }}
+              className={`w-full px-4 py-3 text-slate-900 bg-white border rounded-xl outline-none transition-all duration-200 shadow-sm
+                ${errors.id ? 'border-red-400 focus:ring-2 focus:ring-red-200' : 'border-slate-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100'}`}
             />
             {errors.id && (
-              <div style={{
-                color: '#ef4444',
-                fontSize: '13px',
-                marginTop: '6px',
-                fontWeight: '500'
-              }}>
+              <div className="text-red-500 text-xs font-medium mt-1.5 flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
                 {errors.id}
               </div>
             )}
@@ -373,14 +294,8 @@ export default function AdminRegistration() {
 
           {/* Full Name */}
           <div>
-            <label style={{
-              display: 'block',
-              marginBottom: '8px',
-              fontSize: '14px',
-              fontWeight: '600',
-              color: '#374151'
-            }}>
-              Full Name <span style={{ color: '#ef4444' }}>*</span>
+            <label className="block mb-2 text-sm font-semibold text-slate-700">
+              Full Name <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -390,36 +305,14 @@ export default function AdminRegistration() {
                 setName(e.target.value);
                 clearFieldError('name');
               }}
-              style={{
-                width: '100%',
-                padding: '14px 16px',
-                fontSize: '16px',
-                color: '#000000',
-                backgroundColor: '#ffffff',
-                border: errors.name ? '2px solid #f87171' : '2px solid #e5e7eb',
-                borderRadius: '12px',
-                outline: 'none',
-                transition: 'all 0.2s ease-in-out',
-                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-              }}
-              onFocus={(e) => {
-                if (!errors.name) {
-                  e.target.style.borderColor = '#3b82f6';
-                  e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
-                }
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = errors.name ? '#f87171' : '#e5e7eb';
-                e.target.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
-              }}
+              className={`w-full px-4 py-3 text-slate-900 bg-white border rounded-xl outline-none transition-all duration-200 shadow-sm
+                ${errors.name ? 'border-red-400 focus:ring-2 focus:ring-red-200' : 'border-slate-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100'}`}
             />
             {errors.name && (
-              <div style={{
-                color: '#ef4444',
-                fontSize: '13px',
-                marginTop: '6px',
-                fontWeight: '500'
-              }}>
+              <div className="text-red-500 text-xs font-medium mt-1.5 flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
                 {errors.name}
               </div>
             )}
@@ -427,14 +320,8 @@ export default function AdminRegistration() {
 
           {/* Email */}
           <div>
-            <label style={{
-              display: 'block',
-              marginBottom: '8px',
-              fontSize: '14px',
-              fontWeight: '600',
-              color: '#374151'
-            }}>
-              Email Address <span style={{ color: '#ef4444' }}>*</span>
+            <label className="block mb-2 text-sm font-semibold text-slate-700">
+              Email Address <span className="text-red-500">*</span>
             </label>
             <input
               type="email"
@@ -444,36 +331,14 @@ export default function AdminRegistration() {
                 setEmail(e.target.value);
                 clearFieldError('email');
               }}
-              style={{
-                width: '100%',
-                padding: '14px 16px',
-                fontSize: '16px',
-                color: '#000000',
-                backgroundColor: '#ffffff',
-                border: errors.email ? '2px solid #f87171' : '2px solid #e5e7eb',
-                borderRadius: '12px',
-                outline: 'none',
-                transition: 'all 0.2s ease-in-out',
-                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-              }}
-              onFocus={(e) => {
-                if (!errors.email) {
-                  e.target.style.borderColor = '#3b82f6';
-                  e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
-                }
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = errors.email ? '#f87171' : '#e5e7eb';
-                e.target.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
-              }}
+              className={`w-full px-4 py-3 text-slate-900 bg-white border rounded-xl outline-none transition-all duration-200 shadow-sm
+                ${errors.email ? 'border-red-400 focus:ring-2 focus:ring-red-200' : 'border-slate-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100'}`}
             />
             {errors.email && (
-              <div style={{
-                color: '#ef4444',
-                fontSize: '13px',
-                marginTop: '6px',
-                fontWeight: '500'
-              }}>
+              <div className="text-red-500 text-xs font-medium mt-1.5 flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
                 {errors.email}
               </div>
             )}
@@ -481,14 +346,8 @@ export default function AdminRegistration() {
 
           {/* Password */}
           <div>
-            <label style={{
-              display: 'block',
-              marginBottom: '8px',
-              fontSize: '14px',
-              fontWeight: '600',
-              color: '#374151'
-            }}>
-              Password <span style={{ color: '#ef4444' }}>*</span>
+            <label className="block mb-2 text-sm font-semibold text-slate-700">
+              Password <span className="text-red-500">*</span>
             </label>
             <input
               type="password"
@@ -498,36 +357,14 @@ export default function AdminRegistration() {
                 setPassword(e.target.value);
                 clearFieldError('password');
               }}
-              style={{
-                width: '100%',
-                padding: '14px 16px',
-                fontSize: '16px',
-                color: '#000000',
-                backgroundColor: '#ffffff',
-                border: errors.password ? '2px solid #f87171' : '2px solid #e5e7eb',
-                borderRadius: '12px',
-                outline: 'none',
-                transition: 'all 0.2s ease-in-out',
-                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-              }}
-              onFocus={(e) => {
-                if (!errors.password) {
-                  e.target.style.borderColor = '#3b82f6';
-                  e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
-                }
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = errors.password ? '#f87171' : '#e5e7eb';
-                e.target.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
-              }}
+              className={`w-full px-4 py-3 text-slate-900 bg-white border rounded-xl outline-none transition-all duration-200 shadow-sm
+                ${errors.password ? 'border-red-400 focus:ring-2 focus:ring-red-200' : 'border-slate-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100'}`}
             />
             {errors.password && (
-              <div style={{
-                color: '#ef4444',
-                fontSize: '13px',
-                marginTop: '6px',
-                fontWeight: '500'
-              }}>
+              <div className="text-red-500 text-xs font-medium mt-1.5 flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
                 {errors.password}
               </div>
             )}
@@ -535,14 +372,8 @@ export default function AdminRegistration() {
 
           {/* Phone Number */}
           <div>
-            <label style={{
-              display: 'block',
-              marginBottom: '8px',
-              fontSize: '14px',
-              fontWeight: '600',
-              color: '#374151'
-            }}>
-              Phone Number <span style={{ color: '#ef4444' }}>*</span>
+            <label className="block mb-2 text-sm font-semibold text-slate-700">
+              Phone Number <span className="text-red-500">*</span>
             </label>
             <input
               type="tel"
@@ -552,36 +383,14 @@ export default function AdminRegistration() {
                 setPhone(e.target.value);
                 clearFieldError('phone');
               }}
-              style={{
-                width: '100%',
-                padding: '14px 16px',
-                fontSize: '16px',
-                color: '#000000',
-                backgroundColor: '#ffffff',
-                border: errors.phone ? '2px solid #f87171' : '2px solid #e5e7eb',
-                borderRadius: '12px',
-                outline: 'none',
-                transition: 'all 0.2s ease-in-out',
-                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-              }}
-              onFocus={(e) => {
-                if (!errors.phone) {
-                  e.target.style.borderColor = '#3b82f6';
-                  e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
-                }
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = errors.phone ? '#f87171' : '#e5e7eb';
-                e.target.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
-              }}
+              className={`w-full px-4 py-3 text-slate-900 bg-white border rounded-xl outline-none transition-all duration-200 shadow-sm
+                ${errors.phone ? 'border-red-400 focus:ring-2 focus:ring-red-200' : 'border-slate-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100'}`}
             />
             {errors.phone && (
-              <div style={{
-                color: '#ef4444',
-                fontSize: '13px',
-                marginTop: '6px',
-                fontWeight: '500'
-              }}>
+              <div className="text-red-500 text-xs font-medium mt-1.5 flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
                 {errors.phone}
               </div>
             )}
@@ -589,14 +398,8 @@ export default function AdminRegistration() {
 
           {/* NID Number */}
           <div>
-            <label style={{
-              display: 'block',
-              marginBottom: '8px',
-              fontSize: '14px',
-              fontWeight: '600',
-              color: '#374151'
-            }}>
-              NID Number <span style={{ color: '#ef4444' }}>*</span>
+            <label className="block mb-2 text-sm font-semibold text-slate-700">
+              NID Number <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -606,36 +409,14 @@ export default function AdminRegistration() {
                 setNid(e.target.value);
                 clearFieldError('nid');
               }}
-              style={{
-                width: '100%',
-                padding: '14px 16px',
-                fontSize: '16px',
-                color: '#000000',
-                backgroundColor: '#ffffff',
-                border: errors.nid ? '2px solid #f87171' : '2px solid #e5e7eb',
-                borderRadius: '12px',
-                outline: 'none',
-                transition: 'all 0.2s ease-in-out',
-                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-              }}
-              onFocus={(e) => {
-                if (!errors.nid) {
-                  e.target.style.borderColor = '#3b82f6';
-                  e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
-                }
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = errors.nid ? '#f87171' : '#e5e7eb';
-                e.target.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
-              }}
+              className={`w-full px-4 py-3 text-slate-900 bg-white border rounded-xl outline-none transition-all duration-200 shadow-sm
+                ${errors.nid ? 'border-red-400 focus:ring-2 focus:ring-red-200' : 'border-slate-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100'}`}
             />
             {errors.nid && (
-              <div style={{
-                color: '#ef4444',
-                fontSize: '13px',
-                marginTop: '6px',
-                fontWeight: '500'
-              }}>
+              <div className="text-red-500 text-xs font-medium mt-1.5 flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
                 {errors.nid}
               </div>
             )}
@@ -643,14 +424,8 @@ export default function AdminRegistration() {
 
           {/* Age */}
           <div>
-            <label style={{
-              display: 'block',
-              marginBottom: '8px',
-              fontSize: '14px',
-              fontWeight: '600',
-              color: '#374151'
-            }}>
-              Age <span style={{ color: '#ef4444' }}>*</span>
+            <label className="block mb-2 text-sm font-semibold text-slate-700">
+              Age <span className="text-red-500">*</span>
             </label>
             <input
               type="number"
@@ -661,36 +436,14 @@ export default function AdminRegistration() {
                 clearFieldError('age');
               }}
               min="18"
-              style={{
-                width: '100%',
-                padding: '14px 16px',
-                fontSize: '16px',
-                color: '#000000',
-                backgroundColor: '#ffffff',
-                border: errors.age ? '2px solid #f87171' : '2px solid #e5e7eb',
-                borderRadius: '12px',
-                outline: 'none',
-                transition: 'all 0.2s ease-in-out',
-                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-              }}
-              onFocus={(e) => {
-                if (!errors.age) {
-                  e.target.style.borderColor = '#3b82f6';
-                  e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
-                }
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = errors.age ? '#f87171' : '#e5e7eb';
-                e.target.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
-              }}
+              className={`w-full px-4 py-3 text-slate-900 bg-white border rounded-xl outline-none transition-all duration-200 shadow-sm
+                ${errors.age ? 'border-red-400 focus:ring-2 focus:ring-red-200' : 'border-slate-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100'}`}
             />
             {errors.age && (
-              <div style={{
-                color: '#ef4444',
-                fontSize: '13px',
-                marginTop: '6px',
-                fontWeight: '500'
-              }}>
+              <div className="text-red-500 text-xs font-medium mt-1.5 flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
                 {errors.age}
               </div>
             )}
@@ -698,62 +451,46 @@ export default function AdminRegistration() {
 
           {/* Profile Picture */}
           <div>
-            <label style={{
-              display: 'block',
-              marginBottom: '8px',
-              fontSize: '14px',
-              fontWeight: '600',
-              color: '#374151'
-            }}>
-              Profile Picture <span style={{ color: '#6b7280', fontWeight: '400' }}>(Optional)</span>
+            <label className="block mb-2 text-sm font-semibold text-slate-700">
+              Profile Picture <span className="text-slate-400 font-normal">(Optional)</span>
             </label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              style={{
-                width: '100%',
-                padding: '12px 16px',
-                fontSize: '14px',
-                color: '#000000',
-                backgroundColor: '#ffffff',
-                border: errors.file ? '2px solid #f87171' : '2px solid #e5e7eb',
-                borderRadius: '12px',
-                outline: 'none',
-                cursor: 'pointer'
-              }}
-            />
-            <div style={{
-              fontSize: '12px',
-              color: '#6b7280',
-              marginTop: '6px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px'
-            }}>
-              Max file size: 2MB 
+            <div className="flex items-center justify-center w-full">
+              <label htmlFor="dropzone-file" className={`flex flex-col items-center justify-center w-full p-6 border-2 border-dashed rounded-xl cursor-pointer transition-colors
+                ${errors.file ? 'border-red-300 bg-red-50' : 'border-slate-200 hover:border-blue-300 bg-slate-50 hover:bg-blue-50/50'}`}>
+                <div className="text-center">
+                  <svg className="w-8 h-8 mb-3 mx-auto text-slate-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                  </svg>
+                  <p className="mb-2 text-sm text-slate-500"><span className="font-semibold">Click to upload</span> or drag and drop</p>
+                  <p className="text-xs text-slate-400">SVG, PNG, JPG or GIF (MAX. 2MB)</p>
+                </div>
+                <input 
+                  id="dropzone-file" 
+                  type="file" 
+                  className="hidden" 
+                  accept="image/*"
+                  onChange={handleFileChange}
+                />
+              </label>
             </div>
+            
             {errors.file && (
-              <div style={{
-                color: '#ef4444',
-                fontSize: '13px',
-                marginTop: '6px',
-                fontWeight: '500'
-              }}>
+              <div className="text-red-500 text-xs font-medium mt-1.5 flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
                 {errors.file}
               </div>
             )}
+            
             {file && !errors.file && (
-              <div style={{
-                color: '#16a34a',
-                fontSize: '13px',
-                marginTop: '6px',
-                fontWeight: '500',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}>
-                Selected: {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+              <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                <span className="text-green-700 text-sm font-medium">
+                  {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                </span>
               </div>
             )}
           </div>
@@ -762,37 +499,22 @@ export default function AdminRegistration() {
           <button
             onClick={handleSubmit}
             disabled={isSubmitting}
-            style={{
-              width: '100%',
-              padding: '16px 24px',
-              fontSize: '16px',
-              fontWeight: '600',
-              color: '#ffffff',
-              backgroundColor: isSubmitting ? '#9ca3af' : '#3b82f6',
-              border: 'none',
-              borderRadius: '12px',
-              cursor: isSubmitting ? 'not-allowed' : 'pointer',
-              marginTop: '8px',
-              transition: 'all 0.2s ease-in-out',
-              boxShadow: isSubmitting ? 'none' : '0 4px 14px rgba(59, 130, 246, 0.25)',
-              transform: isSubmitting ? 'none' : 'translateY(0)'
-            }}
-            onMouseOver={(e) => {
-              if (!isSubmitting) {
-                e.currentTarget.style.backgroundColor = '#2563eb';
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 6px 20px rgba(59, 130, 246, 0.35)';
-              }
-            }}
-            onMouseOut={(e) => {
-              if (!isSubmitting) {
-                e.currentTarget.style.backgroundColor = '#3b82f6';
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 4px 14px rgba(59, 130, 246, 0.25)';
-              }
-            }}
+            className={`w-full py-4 px-6 rounded-xl font-semibold text-white transition-all duration-300 mt-4
+              ${isSubmitting 
+                ? 'bg-slate-400 cursor-not-allowed' 
+                : 'bg-blue-500 hover:bg-blue-600 shadow-lg shadow-blue-200 hover:shadow-xl hover:shadow-blue-300 transform hover:-translate-y-0.5'}`}
           >
-            {isSubmitting ? ' Creating Account...' : 'Create Admin Account'}
+            {isSubmitting ? (
+              <div className="flex items-center justify-center">
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Creating Account...
+              </div>
+            ) : (
+              'Create Admin Account'
+            )}
           </button>
         </div>
       </div>

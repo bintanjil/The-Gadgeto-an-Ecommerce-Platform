@@ -32,20 +32,27 @@ function ConfirmationDialog({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
-        <h3 className="text-lg font-medium text-gray-900 mb-2">{title}</h3>
-        <p className="text-gray-600 mb-6">{message}</p>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm transition-opacity duration-300">
+      <div className="bg-white p-6 rounded-xl shadow-2xl max-w-md w-full mx-4 border border-gray-100 transform transition-all duration-300 scale-100 opacity-100">
+        <div className="flex items-center mb-4">
+          <div className="flex-shrink-0 h-10 w-10 bg-red-100 rounded-full flex items-center justify-center mr-3">
+            <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+        </div>
+        <p className="text-gray-600 mb-6 pl-13">{message}</p>
         <div className="flex justify-end space-x-3">
           <button
             onClick={onCancel}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200 font-medium"
           >
             {cancelText}
           </button>
           <button
             onClick={onConfirm}
-            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+            className="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 font-medium"
           >
             {confirmText}
           </button>
@@ -55,7 +62,7 @@ function ConfirmationDialog({
   );
 }
 
-// Data fetching functions
+// Data fetching functions (unchanged from your original code)
 async function getAdminData() {
   try {
     const response = await axios.get(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/admin`, {
@@ -212,7 +219,7 @@ async function getInactiveSellers() {
   }
 }
 
-// Delete functions
+// Delete functions (unchanged from your original code)
 async function deleteAdmin(id: number) {
   try {
     const response = await axios.delete(
@@ -249,7 +256,7 @@ async function deleteSeller(id: number) {
   }
 }
 
-// Interfaces
+// Interfaces (unchanged from your original code)
 interface Admin {
   id: number;
   name: string;
@@ -287,19 +294,19 @@ export default function AdminDashboard() {
   const router = useRouter();
 
   const handleLogout = async () => {
-  try {
-    await axios.post(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/auth/logout`, {}, {
-      withCredentials: true,
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-    router.push('/login');
-  } catch (error) {
-    console.error('Logout failed:', error);
-    router.push('/login');
-  }
-};
+    try {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/auth/logout`, {}, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      router.push('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+      router.push('/login');
+    }
+  };
 
   // Open delete confirmation dialog
   const openDeleteDialog = (id: number, name: string, type: 'admin' | 'seller') => {
@@ -435,19 +442,29 @@ export default function AdminDashboard() {
           : 'Inactive Sellers';
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-xl text-blue-600">Loading {activeTab} data...</div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="flex flex-col items-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mb-4"></div>
+        <div className="text-lg font-medium text-slate-700">Loading {activeTab} data...</div>
+      </div>
     </div>
   );
   
   if (error) return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-lg">
-        <div className="text-red-600 text-lg font-medium mb-2">Error</div>
-        <div className="text-gray-600">{error}</div>
-        <div className="mt-4 text-sm text-gray-500">
-          Make sure:
-          <ul className="list-disc pl-5 mt-2">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="max-w-md w-full bg-white p-8 rounded-xl shadow-lg border border-slate-200">
+        <div className="flex items-center mb-4">
+          <div className="flex-shrink-0 h-10 w-10 bg-red-100 rounded-full flex items-center justify-center mr-3">
+            <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <div className="text-red-600 text-lg font-medium">Error</div>
+        </div>
+        <div className="text-slate-600 mb-6">{error}</div>
+        <div className="text-sm text-slate-500 bg-slate-50 p-4 rounded-lg">
+          <p className="font-medium mb-2">Make sure:</p>
+          <ul className="list-disc pl-5 space-y-1">
             <li>Your backend server is running</li>
             <li>The API endpoints are accessible</li>
             <li>You have proper authentication and admin role</li>
@@ -456,7 +473,7 @@ export default function AdminDashboard() {
         </div>
         <button
           onClick={() => window.location.reload()}
-          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          className="mt-6 w-full px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 font-medium"
         >
           Try Again
         </button>
@@ -465,47 +482,57 @@ export default function AdminDashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Notification Bar */}
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-md">
           {deleteSuccess && (
-            <div className="mx-4 p-4 bg-green-50 border-l-4 border-green-400 rounded-lg shadow-lg flex items-center justify-between animate-fade-in-down">
+            <div className="mx-4 p-4 bg-green-50 border-l-4 border-green-500 rounded-lg shadow-lg flex items-center justify-between animate-fade-in-down">
               <div className="flex items-center">
-                <svg className="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
                 </svg>
                 <p className="ml-3 text-sm font-medium text-green-800">{deleteSuccess}</p>
               </div>
+              <button onClick={() => setDeleteSuccess(null)} className="text-green-500 hover:text-green-600">
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
           )}
           {deleteError && (
-            <div className="mx-4 p-4 bg-red-50 border-l-4 border-red-400 rounded-lg shadow-lg flex items-center justify-between animate-fade-in-down">
+            <div className="mx-4 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg shadow-lg flex items-center justify-between animate-fade-in-down">
               <div className="flex items-center">
-                <svg className="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd"/>
                 </svg>
                 <p className="ml-3 text-sm font-medium text-red-800">{deleteError}</p>
               </div>
+              <button onClick={() => setDeleteError(null)} className="text-red-500 hover:text-red-600">
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
           )}
         </div>
 
         {/* Header Section */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+        <div className="bg-white rounded-2xl shadow-sm p-8 mb-8 border border-slate-200">
           <div className="sm:flex sm:items-center justify-between">
             <div className="sm:flex-auto">
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-[#00B7EB] to-[#0095C0] bg-clip-text text-transparent">
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent">
                 Admin Dashboard
               </h1>
-              <p className="mt-2 text-sm text-gray-600">
+              <p className="mt-2 text-sm text-slate-600">
                 Manage administrators and sellers in the system
               </p>
             </div>
             <div className="mt-4 sm:mt-0 flex flex-wrap gap-3">
               <Link
                 href="/admin/registration"
-                className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium text-white bg-gradient-to-r from-[#00B7EB] to-[#0095C0] hover:from-[#0095C0] hover:to-[#00B7EB] transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                className="inline-flex items-center px-5 py-3 rounded-xl text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
               >
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
@@ -514,7 +541,7 @@ export default function AdminDashboard() {
               </Link>
               <Link
                 href="/seller/registration"
-                className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium text-white bg-gradient-to-r from-[#00B7EB] to-[#0095C0] hover:from-[#0095C0] hover:to-[#00B7EB] transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                className="inline-flex items-center px-5 py-3 rounded-xl text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
               >
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
@@ -523,7 +550,7 @@ export default function AdminDashboard() {
               </Link>
               <button
                 onClick={() => handleLogout()}
-                className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                className="inline-flex items-center px-5 py-3 rounded-xl text-sm font-medium text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
               >
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
@@ -535,14 +562,14 @@ export default function AdminDashboard() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
-          <nav className="flex space-x-4">
+        <div className="bg-white rounded-2xl shadow-sm p-6 mb-8 border border-slate-200">
+          <nav className="flex space-x-2">
             <button
               onClick={() => setActiveTab('admin')}
-              className={`flex items-center px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+              className={`flex items-center px-5 py-3 rounded-xl font-medium text-sm transition-all duration-200 ${
                 activeTab === 'admin'
-                  ? 'bg-gradient-to-r from-[#00B7EB] to-[#0095C0] text-white shadow-md'
-                  : 'text-gray-600 hover:bg-gray-100'
+                  ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md'
+                  : 'text-slate-600 hover:bg-slate-100'
               }`}
             >
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -552,10 +579,10 @@ export default function AdminDashboard() {
             </button>
             <button
               onClick={() => setActiveTab('inactive')}
-              className={`flex items-center px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+              className={`flex items-center px-5 py-3 rounded-xl font-medium text-sm transition-all duration-200 ${
                 activeTab === 'inactive'
-                  ? 'bg-gradient-to-r from-[#00B7EB] to-[#0095C0] text-white shadow-md'
-                  : 'text-gray-600 hover:bg-gray-100'
+                  ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md'
+                  : 'text-slate-600 hover:bg-slate-100'
               }`}
             >
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -565,10 +592,10 @@ export default function AdminDashboard() {
             </button>
             <button
               onClick={() => setActiveTab('sellers')}
-              className={`flex items-center px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+              className={`flex items-center px-5 py-3 rounded-xl font-medium text-sm transition-all duration-200 ${
                 activeTab === 'sellers'
-                  ? 'bg-gradient-to-r from-[#00B7EB] to-[#0095C0] text-white shadow-md'
-                  : 'text-gray-600 hover:bg-gray-100'
+                  ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md'
+                  : 'text-slate-600 hover:bg-slate-100'
               }`}
             >
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -578,10 +605,10 @@ export default function AdminDashboard() {
             </button>
             <button
               onClick={() => setActiveTab('active-sellers')}
-              className={`flex items-center px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+              className={`flex items-center px-5 py-3 rounded-xl font-medium text-sm transition-all duration-200 ${
                 activeTab === 'active-sellers'
-                  ? 'bg-gradient-to-r from-[#00B7EB] to-[#0095C0] text-white shadow-md'
-                  : 'text-gray-600 hover:bg-gray-100'
+                  ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md'
+                  : 'text-slate-600 hover:bg-slate-100'
               }`}
             >
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -591,10 +618,10 @@ export default function AdminDashboard() {
             </button>
             <button
               onClick={() => setActiveTab('inactive-sellers')}
-              className={`flex items-center px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+              className={`flex items-center px-5 py-3 rounded-xl font-medium text-sm transition-all duration-200 ${
                 activeTab === 'inactive-sellers'
-                  ? 'bg-gradient-to-r from-[#00B7EB] to-[#0095C0] text-white shadow-md'
-                  : 'text-gray-600 hover:bg-gray-100'
+                  ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md'
+                  : 'text-slate-600 hover:bg-slate-100'
               }`}
             >
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -605,59 +632,60 @@ export default function AdminDashboard() {
           </nav>
         </div>
         
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        {/* Data Table */}
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-slate-200">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-slate-200">
+              <thead className="bg-slate-50">
                 <tr>
-                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
-                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Name</th>
-                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
+                  <th scope="col" className="px-8 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">ID</th>
+                  <th scope="col" className="px-8 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Name</th>
+                  <th scope="col" className="px-8 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Email</th>
                   {/* Conditionally show columns based on active tab */}
                   {(activeTab === 'admin' || activeTab === 'inactive') && (
                     <>
-                      <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Phone</th>
-                      <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Age</th>
+                      <th scope="col" className="px-8 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Phone</th>
+                      <th scope="col" className="px-8 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Age</th>
                     </>
                   )}
-                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
-                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                  <th scope="col" className="px-8 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Status</th>
+                  <th scope="col" className="px-8 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white divide-y divide-slate-200">
                 {Array.isArray(currentData) && currentData.length > 0 ? (
                   currentData.map((item) => (
-                    <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <tr key={item.id} className="hover:bg-slate-50 transition-colors duration-200 group">
+                      <td className="px-8 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
                         {item.id}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-8 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-10 w-10">
-                            <div className="h-10 w-10 rounded-full bg-gradient-to-r from-[#00B7EB] to-[#0095C0] flex items-center justify-center text-white font-medium text-lg">
+                            <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white font-medium text-lg">
                               {item.name.charAt(0)}
                             </div>
                           </div>
                           <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">{item.name}</div>
+                            <div className="text-sm font-medium text-slate-900">{item.name}</div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.email}</td>
+                      <td className="px-8 py-4 whitespace-nowrap text-sm text-slate-900">{item.email}</td>
                       
                       {/* Conditionally show columns based on active tab */}
                       {(activeTab === 'admin' || activeTab === 'inactive') && (
                         <>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <td className="px-8 py-4 whitespace-nowrap text-sm text-slate-900">
                             {(item as Admin).phone || 'N/A'}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <td className="px-8 py-4 whitespace-nowrap text-sm text-slate-900">
                             {(item as Admin).age || 'N/A'}
                           </td>
                         </>
                       )}
                       
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-8 py-4 whitespace-nowrap">
                         <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
                           item.status === 'active' 
                             ? 'bg-green-100 text-green-800'
@@ -666,13 +694,13 @@ export default function AdminDashboard() {
                           {item.status}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <td className="px-8 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center space-x-3">
                           {(activeTab === 'sellers' || activeTab === 'active-sellers' || activeTab === 'inactive-sellers') ? (
                             <>
                               <Link
                                 href={`/seller/update/${item.id}`}
-                                className="inline-flex items-center px-3 py-1 rounded-md bg-green-50 text-green-700 hover:bg-green-100 transition-colors duration-200"
+                                className="inline-flex items-center px-3 py-2 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors duration-200 group-hover:shadow-sm"
                               >
                                 <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
@@ -681,7 +709,7 @@ export default function AdminDashboard() {
                               </Link>
                               <Link
                                 href={`/seller/status/${item.id}`}
-                                className="inline-flex items-center px-3 py-1 rounded-md bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors duration-200"
+                                className="inline-flex items-center px-3 py-2 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors duration-200 group-hover:shadow-sm"
                               >
                                 <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
@@ -691,7 +719,7 @@ export default function AdminDashboard() {
                               <button
                                 onClick={() => openDeleteDialog(item.id, item.name, 'seller')}
                                 disabled={deleteLoading === item.id}
-                                className="inline-flex items-center px-3 py-1 rounded-md bg-red-50 text-red-700 hover:bg-red-100 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="inline-flex items-center px-3 py-2 rounded-lg bg-red-50 text-red-700 hover:bg-red-100 transition-colors duration-200 group-hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                               >
                                 <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -703,7 +731,7 @@ export default function AdminDashboard() {
                             <>
                               <Link
                                 href={`/admin/status/${item.id}`}
-                                className="inline-flex items-center px-3 py-1 rounded-md bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors duration-200"
+                                className="inline-flex items-center px-3 py-2 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors duration-200 group-hover:shadow-sm"
                               >
                                 <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
@@ -712,7 +740,7 @@ export default function AdminDashboard() {
                               </Link>
                               <Link
                                 href={`/admin/update/${item.id}`}
-                                className="inline-flex items-center px-3 py-1 rounded-md bg-green-50 text-green-700 hover:bg-green-100 transition-colors duration-200"
+                                className="inline-flex items-center px-3 py-2 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors duration-200 group-hover:shadow-sm"
                               >
                                 <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
@@ -722,7 +750,7 @@ export default function AdminDashboard() {
                               <button
                                 onClick={() => openDeleteDialog(item.id, item.name, 'admin')}
                                 disabled={deleteLoading === item.id}
-                                className="inline-flex items-center px-3 py-1 rounded-md bg-red-50 text-red-700 hover:bg-red-100 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="inline-flex items-center px-3 py-2 rounded-lg bg-red-50 text-red-700 hover:bg-red-100 transition-colors duration-200 group-hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                               >
                                 <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -737,12 +765,13 @@ export default function AdminDashboard() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={activeTab === 'sellers' ? 5 : 7} className="px-6 py-10 text-center">
+                    <td colSpan={activeTab === 'sellers' ? 5 : 7} className="px-8 py-16 text-center">
                       <div className="flex flex-col items-center justify-center">
-                        <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-16 h-16 text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
                         </svg>
-                        <p className="mt-2 text-sm text-gray-500">No {tabTitle.toLowerCase()} data available</p>
+                        <p className="text-lg font-medium text-slate-500 mb-2">No {tabTitle.toLowerCase()} found</p>
+                        <p className="text-sm text-slate-400">There are currently no {tabTitle.toLowerCase()} in the system.</p>
                       </div>
                     </td>
                   </tr>
